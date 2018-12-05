@@ -1,39 +1,31 @@
-/bootstrap/compiled.php
-/vendor
-composer.phar
-.DS_Store
-.idea
+#environment
 .env
 .env.*.php
 .env.php
-php_errors.log
-nginx-error.log
-nginx-access.log
-nginx-ssl.access.log
-nginx-ssl.error.log
-php-errors.log
-sftp-config.json
-selenium.php
-composer.lock
-_ide_helper.php
+/docker-compose.yaml
 
-/themes/shopaholic-demo/content/*
-/tests/fixtures/plugins/lovata/
+#app
+/app/vendor
+/app/themes/*/content/*
+/app/tests/fixtures/plugins/lovata/
+
+/app/sitemap*
+/app/robots.txt
+/app/yandex*
+/app/google*
+
+#ansible
+*.retry
+
+#server logs
+.DS_Store
+sftp-config.json
 
 #gitflow
 gitflow
 
-#laravel
-/bower_components
-Homestead.yaml
-
 #octoberCMS
-/public
-
-#vagrant
-.vagrant/
-/bootstrap.sh
-/Vagrantfile
+/app/public
 
 #site
 pdf/
@@ -108,10 +100,7 @@ Icon
 tmp*
 ~*
 *.~*
-*.bak
-*.swp
 
-build/
 png/
 psd/
 doc/
@@ -119,10 +108,6 @@ doc/
 pixelPerfect/
 node_modules/
 docs/
-
-# Logs
-*.log
-*.log*
 
 # Runtime data
 pids
@@ -179,7 +164,3 @@ doc
 /.vscode/
 
 yml
-sitemap.xml
-robots.txt
-yandex*
-google*
