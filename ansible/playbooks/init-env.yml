@@ -7,13 +7,35 @@
     - name: 'Include environment vars'
       include_vars:
         dir: ./../vars/{{ env }}
-    - name: 'Create docker-compose.yaml file'
+    - name: 'Create docker-compose.yml file'
       template:
-        src: ./../templates/docker/{{ env }}-docker-compose.yaml
-        dest: ./../../docker-compose.yaml
+        src: ./../templates/docker/{{ env }}-docker-compose.yml
+        dest: ./../../docker-compose.yml
         force: true
     - name: 'Create docker .env file'
       template:
         src: ./../templates/docker/{{ env }}-docker.env
         dest: ./../../.env
+        force: true
+    - name: 'Create web server config file'
+      template:
+        src: ./../templates/{{ webserver_type }}/{{ env }}-default.conf
+        dest: ./../../services/{{ webserver_type }}/sites/default.conf
+        force: true
+    - name: 'Create .htaccess file'
+      when: webserver_type == 'apache2'
+      template:
+        src: ./../templates/apache2/{{ env }}-htaccess.j2
+        dest: ./../../app/.htaccess
+        force: true
+    - name: 'Create workspace cron config file'
+      template:
+        src: ./../templates/workspace/{{ env }}-laradock.j2
+        dest: ./../../services/workspace/crontab/laradock
+        force: true
+    - name: 'Create php worker config files'
+      when: enable_php_worker
+      template:
+        src: ./../templates/supervisor/{{ env }}-queue.conf
+        dest: ./../../services/php-worker/supervisord.d/queue.conf
         force: true

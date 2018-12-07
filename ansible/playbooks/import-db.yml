@@ -1,0 +1,27 @@
+- name: 'Import dump file to local db'
+  hosts: localhost
+  tasks:
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../vars/{{ env }}
+    - name: 'Create temp folder'
+      file:
+        path: ./../../temp/db
+        state: directory
+    - name: 'Unzip file'
+      unarchive:
+        dest: ./../../temp/db
+        src: ./../../temp/db.zip
+    - name: 'Create dump.sh'
+      template:
+        src: ./../templates/docker/dump.sh.j2
+        dest: ./../../dump.sh
+        force: yes
+#    - name: 'Remove temp folder'
+#      file:
+#        path: ./../../temp/db
+#        state: absent
+#    - name: 'Remove zip file'
+#      file:
+#        path: ./../../temp/db.zip
+#        state: absent

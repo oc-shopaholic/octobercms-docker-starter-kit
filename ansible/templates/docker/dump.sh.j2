@@ -1,0 +1,2 @@
+docker-compose exec mysql sh -c '/usr/bin/mysql -uapp_user_db --password={{ db_pass }} app_db < /home/db/db.sql'  >> /dev/null 2>&1
+docker-compose exec workspace sh -c 'php artisan october:up'

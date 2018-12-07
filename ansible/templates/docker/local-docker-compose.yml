@@ -21,7 +21,7 @@ services:
 ### Workspace Utilities ##################################
     workspace:
       build:
-        context: ./services//docker/workspace
+        context: ./services/workspace
         args:
           - LARADOCK_PHP_VERSION=${PHP_VERSION}
           - LARADOCK_PHALCON_VERSION=${PHALCON_VERSION}
@@ -33,7 +33,6 @@ services:
           - INSTALL_SOAP=${WORKSPACE_INSTALL_SOAP}
           - INSTALL_LDAP=${WORKSPACE_INSTALL_LDAP}
           - INSTALL_IMAP=${WORKSPACE_INSTALL_IMAP}
-          - INSTALL_MONGO=${WORKSPACE_INSTALL_MONGO}
           - INSTALL_PHPREDIS=${WORKSPACE_INSTALL_PHPREDIS}
           - INSTALL_NODE=${WORKSPACE_INSTALL_NODE}
           - NPM_REGISTRY=${WORKSPACE_NPM_REGISTRY}
@@ -43,8 +42,6 @@ services:
           - INSTALL_NPM_VUE_CLI=${WORKSPACE_INSTALL_NPM_VUE_CLI}
           - INSTALL_DRUSH=${WORKSPACE_INSTALL_DRUSH}
           - INSTALL_DRUPAL_CONSOLE=${WORKSPACE_INSTALL_DRUPAL_CONSOLE}
-          - INSTALL_AEROSPIKE=${WORKSPACE_INSTALL_AEROSPIKE}
-          - AEROSPIKE_PHP_REPOSITORY=${AEROSPIKE_PHP_REPOSITORY}
           - INSTALL_V8JS=${WORKSPACE_INSTALL_V8JS}
           - COMPOSER_GLOBAL_INSTALL=${WORKSPACE_COMPOSER_GLOBAL_INSTALL}
           - COMPOSER_REPO_PACKAGIST=${WORKSPACE_COMPOSER_REPO_PACKAGIST}
@@ -91,7 +88,7 @@ services:
 ### PHP-FPM ##############################################
     php-fpm:
       build:
-        context: ./services//docker/php-fpm
+        context: ./services/php-fpm
         args:
           - LARADOCK_PHP_VERSION=${PHP_VERSION}
           - LARADOCK_PHALCON_VERSION=${PHALCON_VERSION}
@@ -100,17 +97,13 @@ services:
           - INSTALL_SSH2=${PHP_FPM_INSTALL_SSH2}
           - INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}
           - INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP}
-          - INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}
           - INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE}
           - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
           - INSTALL_GMP=${PHP_FPM_INSTALL_GMP}
           - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
           - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
           - INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF}
-          - INSTALL_AEROSPIKE=${PHP_FPM_INSTALL_AEROSPIKE}
-          - AEROSPIKE_PHP_REPOSITORY=${AEROSPIKE_PHP_REPOSITORY}
           - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
-          - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
           - INSTALL_INTL=${PHP_FPM_INSTALL_INTL}
           - INSTALL_GHOSTSCRIPT=${PHP_FPM_INSTALL_GHOSTSCRIPT}
           - INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP}
@@ -123,7 +116,7 @@ services:
           - INSTALL_IONCUBE=${PHP_FPM_INSTALL_IONCUBE}
           - INSTALL_YAML=${INSTALL_YAML}
       volumes:
-        - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
+        - ./services/php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
       expose:
         - "9000"
@@ -139,30 +132,32 @@ services:
         - backend
       links:
         - docker-in-docker
+{% if enable_php_worker %}
 
 ### PHP Worker ############################################
-#    php-worker:
-#      build:
-#        context: ./services//php-worker
-#        args:
-#          - PHP_VERSION=${PHP_VERSION}
-#          - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
-#          - INSTALL_BCMATH=${PHP_WORKER_INSTALL_BCMATH}
-#          - INSTALL_SOAP=${PHP_WORKER_INSTALL_SOAP}
-#      volumes:
-#        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-#        - ./php-worker/supervisord.d:/etc/supervisord.d
-#      depends_on:
-#        - workspace
-#      extra_hosts:
-#        - "dockerhost:${DOCKER_HOST_IP}"
-#      networks:
-#        - backend
+    php-worker:
+      build:
+        context: ./services/php-worker
+        args:
+          - PHP_VERSION=${PHP_VERSION}
+          - INSTALL_BCMATH=${PHP_WORKER_INSTALL_BCMATH}
+          - INSTALL_SOAP=${PHP_WORKER_INSTALL_SOAP}
+      volumes:
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ./services/php-worker/supervisord.d:/etc/supervisord.d
+      depends_on:
+        - workspace
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      networks:
+        - backend
+{% endif %}
+{% if webserver_type == 'nginx' %}
 
 ### NGINX Server #########################################
     nginx:
       build:
-        context: ./services//nginx
+        context: ./services/nginx
         args:
           - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
           - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
@@ -180,33 +175,35 @@ services:
       networks:
         - frontend
         - backend
+{% else %}
 
 ### Apache Server ########################################
-#    apache2:
-#      build:
-#        context: ./services//apache2
-#        args:
-#          - PHP_UPSTREAM_CONTAINER=${APACHE_PHP_UPSTREAM_CONTAINER}
-#          - PHP_UPSTREAM_PORT=${APACHE_PHP_UPSTREAM_PORT}
-#          - PHP_UPSTREAM_TIMEOUT=${APACHE_PHP_UPSTREAM_TIMEOUT}
-#          - DOCUMENT_ROOT=${APACHE_DOCUMENT_ROOT}
-#      volumes:
-#        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-#        - ${APACHE_HOST_LOG_PATH}:/var/log/apache2
-#        - ${APACHE_SITES_PATH}:/etc/apache2/sites-available
-#      ports:
-#        - "${APACHE_HOST_HTTP_PORT}:80"
-#        - "${APACHE_HOST_HTTPS_PORT}:443"
-#      depends_on:
-#        - php-fpm
-#      networks:
-#        - frontend
-#        - backend
+    apache2:
+      build:
+        context: ./services/apache2
+        args:
+          - PHP_UPSTREAM_CONTAINER=${APACHE_PHP_UPSTREAM_CONTAINER}
+          - PHP_UPSTREAM_PORT=${APACHE_PHP_UPSTREAM_PORT}
+          - PHP_UPSTREAM_TIMEOUT=${APACHE_PHP_UPSTREAM_TIMEOUT}
+          - DOCUMENT_ROOT=${APACHE_DOCUMENT_ROOT}
+      volumes:
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APACHE_HOST_LOG_PATH}:/var/log/apache2
+        - ${APACHE_SITES_PATH}:/etc/apache2/sites-available
+      ports:
+        - "${APACHE_HOST_HTTP_PORT}:80"
+        - "${APACHE_HOST_HTTPS_PORT}:443"
+      depends_on:
+        - php-fpm
+      networks:
+        - frontend
+        - backend
+{% endif %}
 
 ### MySQL ################################################
     mysql:
       build:
-        context: ./services//mysql
+        context: ./services/mysql
         args:
           - MYSQL_VERSION=${MYSQL_VERSION}
       environment:
@@ -218,6 +215,7 @@ services:
       volumes:
         - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
         - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+        - ${MYSQL_DUMP_FOLDER}:/home
       ports:
         - "${MYSQL_PORT}:3306"
       networks:
@@ -226,7 +224,7 @@ services:
 ### Percona ################################################
 #    percona:
 #      build:
-#        context: ./services//percona
+#        context: ./services/percona
 #      environment:
 #        - MYSQL_DATABASE=${PERCONA_DATABASE}
 #        - MYSQL_USER=${PERCONA_USER}
@@ -242,7 +240,7 @@ services:
 
 ### Redis ################################################
 #    redis:
-#      build: ./redis
+#      build: ./services/redis
 #      volumes:
 #        - ${DATA_PATH_HOST}/redis:/data
 #      ports:
@@ -252,7 +250,7 @@ services:
 
 ### Beanstalkd ###########################################
 #    beanstalkd:
-#      build: ./beanstalkd
+#      build: ./services/beanstalkd
 #      ports:
 #        - "${BEANSTALKD_HOST_PORT}:11300"
 #      privileged: true
@@ -263,7 +261,7 @@ services:
 
 ## Beanstalkd Console ###################################
 #    beanstalkd-console:
-#      build: ./beanstalkd-console
+#      build: ./services/beanstalkd-console
 #      ports:
 #        - "${BEANSTALKD_CONSOLE_HOST_PORT}:2080"
 #      depends_on:
@@ -273,7 +271,7 @@ services:
 
 ### phpMyAdmin ###########################################
 #    phpmyadmin:
-#      build: ./phpmyadmin
+#      build: ./services/phpmyadmin
 #      environment:
 #        - PMA_ARBITRARY=1
 #        - MYSQL_USER=${PMA_USER}
@@ -290,10 +288,10 @@ services:
 ### Certbot #########################################
 #    certbot:
 #      build:
-#        context: ./services//certbot
+#        context: ./services/certbot
 #      volumes:
-#        - ./data/certbot/certs/:/var/certs
-#        - ./certbot/letsencrypt/:/var/www/letsencrypt
+#        - ./services/data/certbot/certs/:/var/certs
+#        - ./services/certbot/letsencrypt/:/var/www/letsencrypt
 #      environment:
 #        - CN=fake.domain.com
 #        - EMAIL="fake.email@gmail.com"
@@ -302,7 +300,7 @@ services:
 
 ## MailDev ##############################################
     maildev:
-      build: ./maildev
+      build: ./services/maildev
       ports:
         - "${MAILDEV_HTTP_PORT}:80"
         - "${MAILDEV_SMTP_PORT}:25"
@@ -312,7 +310,7 @@ services:
 
 ### Selenium ###############################################
 #    selenium:
-#      build: ./selenium
+#      build: ./services/selenium
 #      ports:
 #        - "${SELENIUM_PORT}:4444"
 #      volumes:
@@ -322,7 +320,7 @@ services:
 
 ### Varnish ##########################################
 #    proxy:
-#      build: ./varnish
+#      build: ./services/varnish
 #      expose:
 #        - ${VARNISH_PORT}
 #      environment:
@@ -339,7 +337,7 @@ services:
 #        - frontend
 #
 #    proxy2:
-#      build: ./varnish
+#      build: ./services/varnish
 #      expose:
 #        - ${VARNISH_PORT}
 #      environment:
@@ -357,7 +355,7 @@ services:
 
 ### HAProxy ####################################
 #    haproxy:
-#      build: ./haproxy
+#      build: ./services/haproxy
 #      ports:
 #        - "${HAPROXY_HOST_HTTP_PORT}:8085"
 #      volumes:
@@ -369,7 +367,7 @@ services:
 ### Grafana ################################################
 #    grafana:
 #      build:
-#        context: ./services//grafana
+#        context: ./services/grafana
 #      volumes:
 #        - ${DATA_PATH_HOST}/grafana:/var/lib/grafana
 #      ports:
@@ -380,9 +378,9 @@ services:
 ### Laravel Echo Server #######################################
 #    laravel-echo-server:
 #      build:
-#        context: ./services//laravel-echo-server
+#        context: ./services/laravel-echo-server
 #      volumes:
-#        - ./laravel-echo-server/laravel-echo-server.json:/app/laravel-echo-server.json:ro
+#        - ./services/laravel-echo-server/laravel-echo-server.json:/app/laravel-echo-server.json:ro
 #      ports:
 #        - "${LARAVEL_ECHO_SERVER_PORT}:6001"
 #      links:
@@ -394,7 +392,7 @@ services:
 ### AWS EB-CLI ################################################
 #    aws:
 #      build:
-#        context: ./services//aws
+#        context: ./services/aws
 #      volumes:
 #        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
 #      depends_on:
@@ -404,7 +402,7 @@ services:
 ### Portainer ################################################
 #    portainer:
 #      build:
-#        context: ./services//portainer
+#        context: ./services/portainer
 #      volumes:
 #        - ${DATA_PATH_HOST}/portainer_data:/data
 #        - /var/run/docker.sock:/var/run/docker.sock
@@ -418,7 +416,7 @@ services:
 ### Gitlab ################################################
 #    gitlab:
 #      build:
-#        context: ./services//gitlab
+#        context: ./services/gitlab
 #      environment:
 #        GITLAB_OMNIBUS_CONFIG: |
 #          external_url '${GITLAB_DOMAIN_NAME}'
@@ -460,7 +458,7 @@ services:
 ### IPython #########################################
 #    ipython-controller:
 #      build:
-#        context: ./services//ipython
+#        context: ./services/ipython
 #        dockerfile: Dockerfile.controller
 #      networks:
 #        - backend
@@ -530,7 +528,7 @@ services:
 ### IDE-THEIA ################################################
 #    ide-theia:
 #      build:
-#        context: ./services//ide-theia
+#        context: ./services/ide-theia
 #      volumes:
 #        - ${APP_CODE_PATH_HOST}:/home/project
 #      ports:
@@ -541,7 +539,7 @@ services:
 ### IDE-WEBIDE ################################################
 #    ide-webide:
 #      build:
-#        context: ./services//ide-webide
+#        context: ./services/ide-webide
 #      volumes:
 #        - ${DATA_PATH_HOST}/ide/webide/ide.db:/root/.coding-ide/ide.db
 #      ports:
@@ -552,7 +550,7 @@ services:
 ### IDE-CODIAD ################################################
 #    ide-codiad:
 #      build:
-#        context: ./services//ide-codiad
+#        context: ./services/ide-codiad
 #      environment:
 #        - APP_CODE_PATH_CONTAINER=${APP_CODE_PATH_CONTAINER}
 #        - TZ=${WORKSPACE_TIMEZONE}
@@ -570,7 +568,7 @@ services:
 ### IDE-ICECODER ################################################
 #    ide-icecoder:
 #      build:
-#        context: ./services//ide-icecoder
+#        context: ./services/ide-icecoder
 #      environment:
 #        - DOCUMENT_ROOT=${APP_CODE_PATH_CONTAINER}
 #        - TZ=${WORKSPACE_TIMEZONE}
@@ -587,7 +585,7 @@ services:
 ### DOCKER-REGISTRY ################################################
     docker-registry:
       build:
-        context: ./services//docker-registry
+        context: ./services/docker-registry
       volumes:
         - /etc/localtime:/etc/localtime:ro
         - ${DATA_PATH_HOST}/docker-registry:/var/lib/registry
@@ -599,7 +597,7 @@ services:
 ### DOCKER-WEB-UI ################################################
 #    docker-web-ui:
 #      build:
-#        context: ./services//docker-web-ui
+#        context: ./services/docker-web-ui
 #      environment:
 #        - TZ=${WORKSPACE_TIMEZONE}
 #        - ENV_DOCKER_REGISTRY_HOST=${DOCKER_WEBUI_REGISTRY_HOST}

@@ -2,13 +2,15 @@
 .env
 .env.*.php
 .env.php
-/docker-compose.yaml
+/docker-compose.yml
+/temp
 
 #app
 /app/vendor
 /app/themes/*/content/*
 /app/tests/fixtures/plugins/lovata/
 
+/app/.htaccess
 /app/sitemap*
 /app/robots.txt
 /app/yandex*

@@ -8,7 +8,7 @@ You need **reboot** system, after running the bash script.
 
 # Project initialisation
 
-* You need change *.yaml file with global vars in folder **ansible/vars/global**
-* You need change *.yaml file with local vars in folder **ansible/vars/local**
+* You need change *.yml file with global vars in folder **ansible/vars/global**
+* You need change *.yml file with local vars in folder **ansible/vars/local**
 * You need 
 * Run ```make init-local-env```

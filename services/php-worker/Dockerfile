@@ -37,13 +37,6 @@ RUN if [ ${INSTALL_BCMATH} = true ]; then \
     docker-php-ext-install bcmath \
 ;fi
 
-# Install PostgreSQL drivers:
-ARG INSTALL_PGSQL=false
-RUN if [ ${INSTALL_PGSQL} = true ]; then \
-    apk --update add postgresql-dev \
-        && docker-php-ext-install pdo_pgsql \
-;fi
-
 RUN rm /var/cache/apk/* \
     && mkdir -p /var/www
 
