@@ -36,6 +36,13 @@ Stops docker machines.
 make local-stop
 ```
 
+### local-rebuild
+
+Rebuild and restart docker machines.
+```bash
+make local-rebuild
+```
+
 ### local-import-mysql-db
 
 Get dump file from server or bitbacket files. Import mysql db from dump file.
