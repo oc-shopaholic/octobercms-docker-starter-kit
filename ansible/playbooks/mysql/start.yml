@@ -1,0 +1,30 @@
+---
+- name: 'Start MySQL docker container'
+  hosts: localhost
+  tasks:
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: 'Start container'
+      when: DATABASE_TYPE == 'mysql'
+      docker_container:
+        name: "{{DOCKER_PREFIX}}_mysql"
+        image: "mysql:{{MYSQL_VERSION}}"
+        state: started
+        restart_policy: on-failure
+        env:
+          MYSQL_DATABASE: "{{DATABASE_NAME}}"
+          MYSQL_USER: "{{DATABASE_USER}}"
+          MYSQL_PASSWORD: "{{DATABASE_PASSWORD}}"
+          MYSQL_ROOT_PASSWORD: "{{DATABASE_ROOT_PASSWORD}}"
+          TZ: "{{WORKSPACE_TIMEZONE}}"
+        volumes:
+        - "{{ DATA_PATH_HOST }}:/var/lib/mysql"
+        - "./../../../services/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
+        ports:
+        - "{{ DATABASE_PORT }}:3306"
+        networks:
+          - name: "{{DOCKER_PREFIX}}_backend"

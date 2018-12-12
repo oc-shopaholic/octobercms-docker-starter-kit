@@ -9,21 +9,22 @@
         dir: ./../vars/{{ env }}
     - name: 'Create docker-compose.yml file'
       template:
-        src: ./../templates/docker/{{ env }}-docker-compose.yml
+        src: ./../templates/docker/docker-compose.yml.j2
         dest: ./../../docker-compose.yml
         force: true
     - name: 'Create docker .env file'
       template:
-        src: ./../templates/docker/{{ env }}-docker.env
+        src: ./../templates/docker/{{ env }}-docker.env.j2
         dest: ./../../.env
         force: true
     - name: 'Create web server config file'
+      when: WEBSERVER_TYPE == 'nginx'
       template:
-        src: ./../templates/{{ webserver_type }}/{{ env }}-default.conf
-        dest: ./../../services/{{ webserver_type }}/sites/default.conf
+        src: ./../templates/{{ WEBSERVER_TYPE }}/{{ env }}-default.conf
+        dest: ./../../services/{{ WEBSERVER_TYPE }}/sites/default.conf
         force: true
     - name: 'Create .htaccess file'
-      when: webserver_type == 'apache2'
+      when: WEBSERVER_TYPE == 'apache2'
       template:
         src: ./../templates/apache2/{{ env }}-htaccess.j2
         dest: ./../../app/.htaccess
@@ -34,7 +35,7 @@
         dest: ./../../services/workspace/crontab/laradock
         force: true
     - name: 'Create php worker config files'
-      when: enable_php_worker
+      when: ENABLE_PHP_WORKER
       template:
         src: ./../templates/supervisor/{{ env }}-queue.conf
         dest: ./../../services/php-worker/supervisord.d/queue.conf

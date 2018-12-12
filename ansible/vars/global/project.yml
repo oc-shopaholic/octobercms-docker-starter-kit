@@ -1,0 +1,11 @@
+#Project settings
+PROJECT_NAME: october
+PROJECT_URL: october.loc
+THEME_NAME: lovata
+
+# Available values: nginx|apache2|caddy
+WEBSERVER_TYPE: nginx
+
+DATA_PATH_HOST: ~/.laradock/data-october
+WORKSPACE_TIMEZONE: UTC
+DOCKER_PREFIX: laradockoctober

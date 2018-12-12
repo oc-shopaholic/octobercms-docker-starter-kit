@@ -1,0 +1,66 @@
+### Webserver settings ###############################################
+ENABLE_SSL: false
+
+### Web sockets ######################################################
+ENABLE_LARAVEL_ECHO: false
+
+### Enable cache driver
+ENABLE_REDIS: false
+ENABLE_MEMCACHED: false
+ENABLE_PHPREDISADMIN: false
+
+### Enable queue worker ##############################################
+ENABLE_PHP_WORKER: false
+
+ENABLE_BEANSTALKD: false
+ENABLE_LARAVEL_HORIZON: false
+ENABLE_RABBITMQ: false
+
+### Mail #############################################################
+ENABLE_MAILDEV: false
+ENABLE_MAILHOG: false
+ENABLE_MAILU: false
+
+### Database interface ###############################################
+ENABLE_PHPMYADMIN: false
+ENABLE_ADMINER: false
+ENABLE_PGADMIN: false
+ENABLE_MONGOWEBUI: false
+
+### Tests ############################################################
+ENABLE_SELENIUM: false
+
+### Server performance and info
+ENABLE_VARNISH: false
+ENABLE_GRAFANA: false
+ENABLE_BLACKFIRE: false
+ENABLE_NETDATA: false
+ENABLE_METABASE: false
+
+### Docker web-ui ####################################################
+ENABLE_PORTAINER: false
+ENABLE_DOCKERWEBUI: false
+
+### IDE ##############################################################
+ENABLE_IDE_THEIA: false
+ENABLE_IDE_WEBIDE: false
+ENABLE_IDE_CODIAD: false
+ENABLE_IDE_ICECODER: false
+
+### Other
+ENABLE_CERTBOT: false
+ENABLE_AEROSPIKE: false
+ENABLE_HAPROXY: false
+ENABLE_ELASTICSEARCH: false
+ENABLE_KIBANA: false
+ENABLE_MINIO: false
+ENABLE_JENKINS: false
+ENABLE_RETHINKDB: false
+ENABLE_THUMBOR: false
+ENABLE_SOLR: false
+ENABLE_GITLAB: false
+ENABLE_JUPYTERHUB: false
+ENABLE_IPYTHON: false
+ENABLE_HHVM: false
+ENABLE_AWS: false
+ENABLE_NEO4J: false

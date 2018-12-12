@@ -1,0 +1,38 @@
+- name: 'Import dump file to local db'
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: 'Create temp folder'
+      file:
+        path: ./../../../temp/db
+        state: directory
+    - name: 'Unzip file'
+      unarchive:
+        unsafe_writes: yes
+        dest: ./../../../temp/db
+        src: ./../../../temp/db.zip
+- name: 'Connect to docker workspace and apply dump'
+  hosts: laradockoctober_workspace_1
+  tasks:
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: Apply dump
+      raw: "/usr/bin/mysql -h{{DOCKER_PREFIX}}_mysql -u{{DATABASE_USER}} --password={{DATABASE_PASSWORD}} {{DATABASE_NAME}} < /home/laradock/temp/db/db.sql >> /dev/null 2>&1"
+- name: 'Remove dump file'
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: 'Remove temp folder'
+      file:
+        unsafe_writes: yes
+        path: ./../../../temp/db
+        state: absent
+    - name: 'Remove zip file'
+      file:
+        unsafe_writes: yes
+        path: ./../../../temp/db.zip
+        state: absent

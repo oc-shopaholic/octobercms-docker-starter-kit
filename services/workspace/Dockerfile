@@ -284,6 +284,23 @@ RUN if [ ${INSTALL_PHPDBG} = true ]; then \
 ;fi
 
 ###########################################################################
+# Blackfire:
+###########################################################################
+
+ARG INSTALL_BLACKFIRE=false
+ARG BLACKFIRE_CLIENT_ID
+ENV BLACKFIRE_CLIENT_ID ${BLACKFIRE_CLIENT_ID}
+ARG BLACKFIRE_CLIENT_TOKEN
+ENV BLACKFIRE_CLIENT_TOKEN ${BLACKFIRE_CLIENT_TOKEN}
+
+RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
+    curl -L https://packagecloud.io/gpg.key | apt-key add - && \
+    echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list && \
+    apt-get update -yqq && \
+    apt-get install blackfire-agent \
+;fi
+
+###########################################################################
 # ssh:
 ###########################################################################
 
@@ -302,6 +319,37 @@ RUN if [ ${INSTALL_WORKSPACE_SSH} = true ]; then \
     && chmod 400 /root/.ssh/id_rsa \
     && cp -rf /root/.ssh /home/laradock \
     && chown -R laradock:laradock /home/laradock/.ssh \
+;fi
+
+###########################################################################
+# MongoDB:
+###########################################################################
+
+ARG INSTALL_MONGO=false
+
+RUN if [ ${INSTALL_MONGO} = true ]; then \
+    # Install the mongodb extension
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      pecl install mongo && \
+      echo "extension=mongo.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/mongo.ini && \
+      ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/mongo.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/30-mongo.ini \
+    ;fi && \
+    pecl install mongodb && \
+    echo "extension=mongodb.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/mongodb.ini && \
+    ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/mongodb.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/30-mongodb.ini \
+;fi
+
+###########################################################################
+# AMQP:
+###########################################################################
+
+ARG INSTALL_AMQP=false
+
+RUN if [ ${INSTALL_AMQP} = true ]; then \
+    apt-get install librabbitmq-dev -y && \
+    pecl -q install amqp && \
+    echo "extension=amqp.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/amqp.ini && \
+    ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/amqp.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/30-amqp.ini \
 ;fi
 
 ###########################################################################
@@ -491,6 +539,44 @@ RUN if [ ${INSTALL_YARN} = true ]; then \
 ENV PATH $PATH:/home/laradock/.yarn/bin
 
 ###########################################################################
+# PHP Aerospike:
+###########################################################################
+
+USER root
+
+ARG INSTALL_AEROSPIKE=false
+ARG AEROSPIKE_PHP_REPOSITORY
+
+RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
+    # Fix dependencies for PHPUnit within aerospike extension
+    apt-get -y install sudo wget && \
+    # Install the php aerospike extension
+    curl -L -o /tmp/aerospike-client-php.tar.gz ${AEROSPIKE_PHP_REPOSITORY} \
+    && mkdir -p aerospike-client-php \
+    && tar -C aerospike-client-php -zxvf /tmp/aerospike-client-php.tar.gz --strip 1 \
+    && \
+      if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+        ( \
+            cd aerospike-client-php/src/aerospike \
+            && phpize \
+            && ./build.sh \
+            && make install \
+        ) \
+      else \
+        ( \
+            cd aerospike-client-php/src \
+            && phpize \
+            && ./build.sh \
+            && make install \
+        ) \
+      fi \
+    && rm /tmp/aerospike-client-php.tar.gz \
+    && echo 'extension=aerospike.so' >> /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/aerospike.ini \
+    && echo 'aerospike.udf.lua_system_path=/usr/local/aerospike/lua' >> /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/aerospike.ini \
+    && echo 'aerospike.udf.lua_user_path=/usr/local/aerospike/usr-lua' >> /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/aerospike.ini \
+;fi
+
+###########################################################################
 # PHP V8JS:
 ###########################################################################
 
@@ -598,6 +684,38 @@ RUN if [ ${INSTALL_LINUXBREW} = true ]; then \
 ;fi
 
 ###########################################################################
+# SQL SERVER:
+###########################################################################
+
+ARG INSTALL_MSSQL=false
+
+RUN set -eux; if [ ${INSTALL_MSSQL} = true ]; then \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      apt-get -y install php5.6-sybase freetds-bin freetds-common libsybdb5 \
+      && php -m | grep -q 'mssql' \
+      && php -m | grep -q 'pdo_dblib' \
+    ;else \
+      ###########################################################################
+      #  The following steps were taken from
+      #  https://github.com/Microsoft/msphpsql/wiki/Install-and-configuration
+      ###########################################################################
+      curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+      curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+      apt-get update -yqq && \
+      ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc unixodbc-dev libgss3 odbcinst locales && \
+      ln -sfn /opt/mssql-tools/bin/sqlcmd /usr/bin/sqlcmd && \
+      ln -sfn /opt/mssql-tools/bin/bcp /usr/bin/bcp && \
+      echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+      locale-gen && \
+      pecl install sqlsrv pdo_sqlsrv && \
+      echo "extension=sqlsrv.so"     > /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/20-sqlsrv.ini && \
+      echo "extension=pdo_sqlsrv.so" > /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/20-pdo_sqlsrv.ini \
+      && php -m | grep -q 'sqlsrv' \
+      && php -m | grep -q 'pdo_sqlsrv' \
+    ;fi \
+;fi
+
+###########################################################################
 # Minio:
 ###########################################################################
 
@@ -688,6 +806,22 @@ RUN if [ ${INSTALL_TERRAFORM} = true ]; then \
     && mv terraform /usr/local/bin \
     && rm terraform_0.10.6_linux_amd64.zip \
 ;fi
+###########################################################################
+# pgsql client
+###########################################################################
+
+USER root
+
+ARG INSTALL_PG_CLIENT=false
+
+RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
+    # Install the pgsql client
+    apt-get install wget \
+    && add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" \
+    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+    && apt-get update \
+    && apt-get -y install postgresql-client-10 \
+;fi
 
 ###########################################################################
 # nasm
@@ -696,7 +830,7 @@ RUN if [ ${INSTALL_TERRAFORM} = true ]; then \
 USER root
 
 RUN apt-get update -yqq \
-    && apt-get -yqq install nasm 
+    && apt-get -yqq install nasm
 
 ###########################################################################
 # Dusk Dependencies:
@@ -744,6 +878,19 @@ RUN if [ $INSTALL_PHALCON = true ]; then \
 ;fi
 
 ###########################################################################
+# MySQL Client:
+###########################################################################
+
+USER root
+
+ARG INSTALL_MYSQL_CLIENT=false
+
+RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
+    apt-get update -yqq && \
+    apt-get -y install mysql-client \
+;fi
+
+###########################################################################
 # Check PHP version:
 ###########################################################################
 
@@ -755,12 +902,12 @@ RUN php -v | head -n 1 | grep -q "PHP ${LARADOCK_PHP_VERSION}."
 #--------------------------------------------------------------------------
 #
 
+USER root
+
 # Clean up
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     rm /var/log/lastlog /var/log/faillog
-
-USER root
 
 # Set default work directory
 WORKDIR /var/www

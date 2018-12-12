@@ -20,5 +20,3 @@ sudo apt-get install -y make
 #Install unzip
 apt-get install -y zip
 apt-get install -y unzip
-
-sudo usermod -a -G docker $USER

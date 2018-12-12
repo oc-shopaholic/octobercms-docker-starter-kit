@@ -3,13 +3,17 @@ local-init-env:
 local-up:
 	make local-init-env
 	docker-compose up -d
-	docker-compose ps
+	ansible-playbook ansible/playbooks/mysql/start.yml -i ansible/local/hosts.yml
+	docker ps
 local-stop:
+	ansible-playbook ansible/playbooks/mysql/stop.yml -i ansible/local/hosts.yml
 	docker-compose stop
 local-restart:
 	make local-init-env
-	docker-compose restart
-	docker-compose ps
-local-import-db:
-	ansible-playbook ansible/playbooks/import-db.yml -i ansible/local/hosts.yml
-	bash dump.sh && rm dump.sh
+	ansible-playbook ansible/playbooks/mysql/stop.yml -i ansible/local/hosts.yml
+	ansible-playbook ansible/playbooks/mysql/start.yml -i ansible/local/hosts.yml
+	docker-compose stop
+	docker-compose up -d
+	docker ps
+local-import-mysql-db:
+	ansible-playbook ansible/playbooks/mysql/import-db.yml -i ansible/local/hosts.yml

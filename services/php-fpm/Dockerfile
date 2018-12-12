@@ -93,6 +93,31 @@ RUN if [ ${INSTALL_SOAP} = true ]; then \
 ;fi
 
 ###########################################################################
+# pgsql
+###########################################################################
+
+ARG INSTALL_PGSQL=false
+
+RUN if [ ${INSTALL_PGSQL} = true ]; then \
+    # Install the pgsql extension
+    docker-php-ext-install pgsql \
+;fi
+
+###########################################################################
+# pgsql client
+###########################################################################
+
+ARG INSTALL_PG_CLIENT=false
+
+RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
+    # Create folders if not exists (https://github.com/tianon/docker-brew-debian/issues/65)
+    mkdir -p /usr/share/man/man1 && \
+    mkdir -p /usr/share/man/man7 && \
+    # Install the pgsql client
+    apt-get install -y postgresql-client \
+;fi
+
+###########################################################################
 # xDebug:
 ###########################################################################
 
@@ -127,6 +152,20 @@ RUN if [ ${INSTALL_PHPDBG} = true ]; then \
 ;fi
 
 ###########################################################################
+# Blackfire:
+###########################################################################
+
+ARG INSTALL_BLACKFIRE=false
+
+RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
+    version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
+    && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/$version \
+    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp \
+    && mv /tmp/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so \
+    && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
+;fi
+
+###########################################################################
 # PHP REDIS EXTENSION
 ###########################################################################
 
@@ -157,6 +196,35 @@ RUN if [ ${INSTALL_SWOOLE} = true ]; then \
       fi \
     fi && \
     docker-php-ext-enable swoole \
+;fi
+
+###########################################################################
+# MongoDB:
+###########################################################################
+
+ARG INSTALL_MONGO=false
+
+RUN if [ ${INSTALL_MONGO} = true ]; then \
+    # Install the mongodb extension
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      pecl install mongo && \
+      docker-php-ext-enable mongo \
+    ;fi && \
+    pecl install mongodb && \
+    docker-php-ext-enable mongodb \
+;fi
+
+###########################################################################
+# AMQP:
+###########################################################################
+
+ARG INSTALL_AMQP=false
+
+RUN if [ ${INSTALL_AMQP} = true ]; then \
+    apt-get install librabbitmq-dev -y && \
+    # Install the amqp extension
+    pecl install amqp && \
+    docker-php-ext-enable amqp \
 ;fi
 
 ###########################################################################
@@ -208,6 +276,32 @@ RUN if [ ${INSTALL_GMP} = true ]; then \
     docker-php-ext-install gmp \
 ;fi
 
+###########################################################################
+# PHP Memcached:
+###########################################################################
+
+ARG INSTALL_MEMCACHED=false
+
+RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
+    # Install the php memcached extension
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/2.2.0.tar.gz"; \
+    else \
+      curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/php7.tar.gz"; \
+    fi \
+    && mkdir -p memcached \
+    && tar -C memcached -zxvf /tmp/memcached.tar.gz --strip 1 \
+    && ( \
+        cd memcached \
+        && phpize \
+        && ./configure \
+        && make -j$(nproc) \
+        && make install \
+    ) \
+    && rm -r memcached \
+    && rm /tmp/memcached.tar.gz \
+    && docker-php-ext-enable memcached \
+;fi
 
 ###########################################################################
 # Exif:
@@ -218,6 +312,46 @@ ARG INSTALL_EXIF=false
 RUN if [ ${INSTALL_EXIF} = true ]; then \
     # Enable Exif PHP extentions requirements
     docker-php-ext-install exif \
+;fi
+
+###########################################################################
+# PHP Aerospike:
+###########################################################################
+
+USER root
+
+ARG INSTALL_AEROSPIKE=false
+ARG AEROSPIKE_PHP_REPOSITORY
+
+RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
+    # Fix dependencies for PHPUnit within aerospike extension
+    apt-get -y install sudo wget && \
+    # Install the php aerospike extension
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      curl -L -o /tmp/aerospike-client-php.tar.gz https://github.com/aerospike/aerospike-client-php5/archive/master.tar.gz; \
+    else \
+      curl -L -o /tmp/aerospike-client-php.tar.gz ${AEROSPIKE_PHP_REPOSITORY}; \
+    fi \
+    && mkdir -p aerospike-client-php \
+    && tar -C aerospike-client-php -zxvf /tmp/aerospike-client-php.tar.gz --strip 1 \
+    && \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      ( \
+          cd aerospike-client-php/src/aerospike \
+          && phpize \
+          && ./build.sh \
+          && make install \
+      ) \
+    else \
+      ( \
+          cd aerospike-client-php/src \
+          && phpize \
+          && ./build.sh \
+          && make install \
+      ) \
+    fi \
+    && rm /tmp/aerospike-client-php.tar.gz \
+    && docker-php-ext-enable aerospike \
 ;fi
 
 ###########################################################################
@@ -296,6 +430,42 @@ RUN if [ ${INSTALL_LDAP} = true ]; then \
     apt-get install -y libldap2-dev && \
     docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ && \
     docker-php-ext-install ldap \
+;fi
+
+###########################################################################
+# SQL SERVER:
+###########################################################################
+
+ARG INSTALL_MSSQL=false
+
+RUN set -eux; if [ ${INSTALL_MSSQL} = true ]; then \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      apt-get -y install freetds-dev libsybdb5 \
+      && ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so \
+      && docker-php-ext-install mssql pdo_dblib \
+      && php -m | grep -q 'mssql' \
+      && php -m | grep -q 'pdo_dblib' \
+    ;else \
+      ###########################################################################
+      # Ref from https://github.com/Microsoft/msphpsql/wiki/Dockerfile-for-adding-pdo_sqlsrv-and-sqlsrv-to-official-php-image
+      ###########################################################################
+      # Add Microsoft repo for Microsoft ODBC Driver 13 for Linux
+      apt-get install -y apt-transport-https gnupg \
+      && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+      && curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+      && apt-get update -yqq \
+      # Install Dependencies
+      && ACCEPT_EULA=Y apt-get install -y unixodbc unixodbc-dev libgss3 odbcinst msodbcsql17 locales \
+      && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+      # link local aliases
+      && ln -sfn /etc/locale.alias /usr/share/locale/locale.alias \
+      && locale-gen \
+      # Install pdo_sqlsrv and sqlsrv from PECL. Replace pdo_sqlsrv-4.1.8preview with preferred version.
+      && pecl install pdo_sqlsrv sqlsrv \
+      && docker-php-ext-enable pdo_sqlsrv sqlsrv \
+      && php -m | grep -q 'pdo_sqlsrv' \
+      && php -m | grep -q 'sqlsrv' \
+    ;fi \
 ;fi
 
 ###########################################################################

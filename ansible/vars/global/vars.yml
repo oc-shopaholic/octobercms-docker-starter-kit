@@ -1,9 +1,0 @@
-project_name: october
-project_url: october.loc
-theme_name: lovata
-
-# Available values: nginx|apache2
-webserver_type: nginx
-
-# Enable queue worker
-enable_php_worker: true
