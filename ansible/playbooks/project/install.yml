@@ -1,0 +1,67 @@
+- name: 'Create app folder'
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: 'Remove app folder'
+      file:
+        path: "./../../../app/{{ item }}"
+        state: absent
+      with_items:
+        - .gitkeep
+        - .env
+- name: 'Connect to docker workspace and install OctoberCMS'
+  hosts: laradockoctober_workspace_1
+  remote_user: laradock
+  tasks:
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: Install OctoberCMS from composer
+      raw: "composer create-project october/october /var/www/"
+    - name: Generate env file
+      raw: "php /var/www/artisan october:env"
+    - name: Replace default mysql host
+      lineinfile:
+        path: /var/www/.env
+        regexp: "^DB_HOST=localhost"
+        line: "DB_HOST={{DOCKER_PREFIX}}_mysql"
+    - name: Replace default mysql databese
+      lineinfile:
+        path: /var/www/.env
+        regexp: "^DB_DATABASE=database"
+        line: "DB_DATABASE={{DATABASE_NAME}}"
+    - name: Replace default mysql user
+      lineinfile:
+        path: /var/www/.env
+        regexp: "^DB_USERNAME=root"
+        line: "DB_USERNAME={{DATABASE_USER}}"
+    - name: Replace default mysql password
+      lineinfile:
+        path: /var/www/.env
+        regexp: "^DB_PASSWORD="
+        line: "DB_PASSWORD={{DATABASE_PASSWORD}}"
+    - name: Create OctoberCMS tables
+      raw: "php /var/www/artisan october:up"
+    - name: Remove demo data
+      raw: "php /var/www/artisan october:fresh"
+- name: 'Remove default files'
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: 'Remove default OctoberCMS files'
+      file:
+        path: "./../../../app/{{ item }}"
+        state: absent
+      with_items:
+        - .editorconfig
+        - .gitignore
+        - .gitattributes
+        - .travis.yml
+        - CHANGELOG.md
+        - CONTRIBUTING.md
+        - ISSUE_TEMPLATE.md
+        - LICENSE
+        - README.md

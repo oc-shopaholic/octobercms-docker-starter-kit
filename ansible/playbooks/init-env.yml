@@ -17,6 +17,12 @@
         src: ./../templates/docker/{{ env }}-docker.env.j2
         dest: ./../../.env
         force: true
+    - name: 'Replace docker .env file for Windows'
+      when: ansible_os_family == "Windows"
+      lineinfile:
+        path: ./../../.env
+        regexp: "^COMPOSE_PATH_SEPARATOR=:"
+        line: "COMPOSE_PATH_SEPARATOR=;"
     - name: 'Create web server config file'
       when: WEBSERVER_TYPE == 'nginx'
       template:

@@ -27,3 +27,5 @@ local-import-mysql-db:
 	ansible-playbook ansible/playbooks/mysql/import-db.yml -i ansible/local/hosts.yml
 docker-status:
 	docker ps
+project-install:
+	ansible-playbook ansible/playbooks/project/install.yml -i ansible/local/hosts.yml
