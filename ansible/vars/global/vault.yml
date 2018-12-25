@@ -1,1 +1,7 @@
+# You project ID from octobercms.com
 PROJECT_ID:
+APP_KEY:
+
+BITBACKET_USER:
+BITBACKET_PASSWORD:
+BITBACKET_DOWNLOADS_PATH: "https://api.bitbucket.org/2.0/repositories/YOUR_COMPANY/YOUR_PROJECT/downloads"

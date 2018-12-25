@@ -4,10 +4,14 @@
 .env.php
 /docker-compose.yml
 /temp
+.terraform/
 
 #app
 /app/vendor
 /app/themes/*/content/*
+/app/themes/*/content_temp/*
+/app/themes/*/meta/*
+/app/themes/*/meta_temp/*
 /app/tests/fixtures/plugins/lovata/
 
 /app/.htaccess

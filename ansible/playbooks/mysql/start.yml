@@ -22,7 +22,7 @@
           MYSQL_ROOT_PASSWORD: "{{DATABASE_ROOT_PASSWORD}}"
           TZ: "{{WORKSPACE_TIMEZONE}}"
         volumes:
-        - "{{ DATA_PATH_HOST }}:/var/lib/mysql"
+        - "{{ DATA_PATH_HOST }}/mysql:/var/lib/mysql"
         - "./../../../services/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
         ports:
         - "{{ DATABASE_PORT }}:3306"

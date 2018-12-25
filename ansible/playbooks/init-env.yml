@@ -1,12 +1,15 @@
 - name: 'Create environment'
   hosts: localhost
   tasks:
+    # Gather facts
     - name: 'Include global vars'
       include_vars:
         dir: ./../vars/global
     - name: 'Include environment vars'
       include_vars:
         dir: ./../vars/{{ env }}
+
+    # Generate docker-compose files
     - name: 'Create docker-compose.yml file'
       template:
         src: ./../templates/docker/docker-compose.yml.j2
@@ -23,17 +26,15 @@
         path: ./../../.env
         regexp: "^COMPOSE_PATH_SEPARATOR=:"
         line: "COMPOSE_PATH_SEPARATOR=;"
+
+    # Generate config files of docker containers
+    # TODO: Add generation of apache2 conf files
+    # TODO: Add generation of ssl files
     - name: 'Create web server config file'
       when: WEBSERVER_TYPE == 'nginx'
       template:
         src: ./../templates/{{ WEBSERVER_TYPE }}/{{ env }}-default.conf
         dest: ./../../services/{{ WEBSERVER_TYPE }}/sites/default.conf
-        force: true
-    - name: 'Create .htaccess file'
-      when: WEBSERVER_TYPE == 'apache2'
-      template:
-        src: ./../templates/apache2/{{ env }}-htaccess.j2
-        dest: ./../../app/.htaccess
         force: true
     - name: 'Create workspace cron config file'
       template:
@@ -45,4 +46,17 @@
       template:
         src: ./../templates/supervisor/{{ env }}-queue.conf
         dest: ./../../services/php-worker/supervisord.d/queue.conf
+        force: true
+
+    # Generate app files
+    - name: 'Create .htaccess file'
+      when: WEBSERVER_TYPE == 'apache2'
+      template:
+        src: ./../templates/apache2/{{ env }}-htaccess.j2
+        dest: ./../../app/.htaccess
+        force: true
+    - name: 'Create .env file in app folder'
+      template:
+        src: ./../templates/app/{{ env }}.env
+        dest: ./../../app/.env
         force: true

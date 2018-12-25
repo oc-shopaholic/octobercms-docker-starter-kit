@@ -2,15 +2,18 @@
 - name: 'Build MySQL image'
   hosts: localhost
   tasks:
-    # Gather facts
     - name: 'Include global vars'
       include_vars:
         dir: ./../../vars/global
     - name: 'Include environment vars'
       include_vars:
         dir: ./../../vars/{{ env }}
-
-    # Build mysql docker image
+    - name: 'Remove images'
+      docker_image:
+        name: "mysql:{{ MYSQL_VERSION }}"
+        force: yes
+        tag: "{{ MYSQL_VERSION }}"
+        state: absent
     - name: 'Build image'
       when: DATABASE_TYPE == 'mysql'
       docker_image:

@@ -2,13 +2,24 @@
   hosts: localhost
   gather_facts: no
   tasks:
-    - name: 'Remove app folder'
+    - name: 'Remove files in app'
       file:
-        path: "./../../../app/{{ item }}"
+        path: "{{ item }}"
         state: absent
-      with_items:
-        - .gitkeep
-        - .env
+      with_fileglob:
+      - ./../../../app/*
+      - ./../../../app/.*
+    - name: 'Find directories in app folder'
+      find:
+        paths: ./../../../app
+        file_type: directory
+      register: directory_list
+    - name: 'Remove folders in app'
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ directory_list.files }}"
+
 - name: 'Connect to docker workspace and install OctoberCMS'
   hosts: laradockoctober_workspace_1
   remote_user: laradock
@@ -19,7 +30,7 @@
     - name: 'Include environment vars'
       include_vars:
         dir: ./../../vars/{{ env }}
-    - name: Install OctoberCMS from composer
+    - name: 'Install OctoberCMS from composer'
       raw: "composer create-project october/october /var/www/"
     - name: Generate env file
       raw: "php /var/www/artisan october:env"
@@ -47,6 +58,20 @@
       raw: "php /var/www/artisan october:up"
     - name: Remove demo data
       raw: "php /var/www/artisan october:fresh"
+    - name: Attach project ID
+      copy:
+        content: "/usr/bin/mysql -h{{DOCKER_PREFIX}}_mysql -u{{DATABASE_USER}} --password={{DATABASE_PASSWORD}} {{DATABASE_NAME}} -e \"INSERT INTO system_parameters (\\`namespace\\`,\\`group\\`,\\`item\\`,\\`value\\`) VALUES('system','project','id','{{PROJECT_ID}}');\""
+        dest: "command-script.sh"
+    - name: Run script
+      raw: "bash command-script.sh"
+    - name: Remove script file
+      file:
+        path: "command-script.sh"
+        state: absent
+    - name: Install OctoberCMS plugins
+      raw: "php /var/www/artisan october:update"
+    - name: Apply plugins migrations
+      raw: "php /var/www/artisan october:up"
 - name: 'Remove default files'
   hosts: localhost
   gather_facts: no
@@ -65,3 +90,19 @@
         - ISSUE_TEMPLATE.md
         - LICENSE
         - README.md
+    - name: 'Clone basecode plugin'
+      raw: 'git clone https://github.com/lovata/oc-basecode-plugin.git ./../../../app/plugins/lovata/basecode'
+    - name: 'Remove git files form basecode plugin'
+      file:
+        path: "./../../../app/plugins/lovata/basecode/{{ item }}"
+        state: absent
+      with_items:
+      - .git
+      - .gitignore
+- name: 'Connect to docker workspace and install basecode plugin'
+  hosts: laradockoctober_workspace_1
+  remote_user: laradock
+  gather_facts: no
+  tasks:
+    - name: 'Apply migrations'
+      raw: 'php artisan october:up'

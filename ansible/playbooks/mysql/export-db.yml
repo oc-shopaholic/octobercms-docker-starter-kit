@@ -1,0 +1,57 @@
+- name: 'Export dump file from local db'
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: 'Remove zip file and temp folder'
+      file:
+        path: ./../../../temp/{{item}}
+        state: absent
+      with_items:
+        - db.zip
+        - db
+    - name: 'Create temp folder'
+      file:
+        path: ./../../../temp/db
+        state: directory
+
+- name: 'Connect to docker workspace and create dump.sql file'
+  hosts: laradockoctober_workspace_1
+  remote_user: laradock
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+
+    # Create dump file
+    - name: Apply dump
+      raw: "/usr/bin/mysqldump -h{{DOCKER_PREFIX}}_mysql -u{{DATABASE_USER}} --password={{DATABASE_PASSWORD}} {{DATABASE_NAME}} > /home/laradock/temp/db/db.sql"
+
+- name: 'Export dump file from local db'
+  hosts: localhost
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+
+    - name: 'Create zip file'
+      archive:
+        path: ./../../../temp/db/db.sql
+        dest: ./../../../temp/db.zip
+        format: zip
+    - name: 'Download dump file to bitbacket'
+      when: dump_src == 'bitbacket'
+      raw: "curl -X POST -s -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" {{BITBACKET_DOWNLOADS_PATH}} -F files=@./../../../temp/db.zip"
+    - name: 'Remove zip file'
+      file:
+        path: ./../../../temp/{{item}}
+        state: absent
+      with_items:
+      - db

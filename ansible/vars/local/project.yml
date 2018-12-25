@@ -17,7 +17,7 @@ ENABLE_LARAVEL_HORIZON: false
 ENABLE_RABBITMQ: false
 
 ### Mail #############################################################
-ENABLE_MAILDEV: false
+ENABLE_MAILDEV: true
 ENABLE_MAILHOG: false
 ENABLE_MAILU: false
 

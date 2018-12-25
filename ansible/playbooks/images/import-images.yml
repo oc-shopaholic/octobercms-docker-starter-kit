@@ -1,0 +1,47 @@
+- name: 'Import images files to app'
+  hosts: localhost
+  tasks:
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: 'Remove zip file'
+      file:
+        path: ./../../../temp/{{item}}
+        state: absent
+      with_items:
+      - images
+    - name: 'Create temp folder'
+      file:
+        path: ./../../../temp/images
+        state: directory
+    - name: 'Download images files from bitbacket'
+      when: dump_src == 'bitbacket'
+      raw: "curl -o ./../../../temp/images.zip -s -L  -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" {{BITBACKET_DOWNLOADS_PATH}}/images.zip"
+    - name: 'Unzip file'
+      unarchive:
+        dest: ./../../../temp/images
+        src: ./../../../temp/images.zip
+    - name: 'Create empty folders if it is not exists'
+      file:
+        path: ./../../../temp/images/{{item}}
+        state: directory
+      with_items:
+      - media
+      - uploads
+    - name: 'Copy images from temp folder'
+      copy:
+        src: ./../../../temp/images/{{item}}
+        dest: ./../../../app/storage/app/
+      with_items:
+      - media
+      - uploads
+    - name: 'Remove zip file'
+      file:
+        path: ./../../../temp/{{item}}
+        state: absent
+      with_items:
+      - images
+      - images.zip

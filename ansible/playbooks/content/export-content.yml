@@ -1,0 +1,41 @@
+- name: 'Export content files from app'
+  hosts: localhost
+  tasks:
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: 'Remove zip file'
+      file:
+        path: ./../../../temp/{{item}}
+        state: absent
+      with_items:
+        - content.zip
+        - content
+    - name: 'Create temp folder'
+      file:
+        path: ./../../../temp/content
+        state: directory
+    - name: 'Copy content to temp folder'
+      copy:
+        src: ./../../../app/themes/{{THEME_NAME}}/{{item}}
+        dest: ./../../../temp/content
+      with_items:
+        - content
+        - meta
+    - name: 'Create zip file'
+      archive:
+        path: ./../../../temp/content/
+        dest: ./../../../temp/content.zip
+        format: zip
+    - name: 'Download dump file to bitbacket'
+      when: dump_src == 'bitbacket'
+      raw: "curl -X POST -s -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" {{BITBACKET_DOWNLOADS_PATH}} -F files=@./../../../temp/content.zip"
+    - name: 'Remove zip file'
+      file:
+        path: ./../../../temp/{{item}}
+        state: absent
+      with_items:
+      - content

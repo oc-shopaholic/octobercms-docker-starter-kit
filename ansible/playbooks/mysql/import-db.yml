@@ -1,18 +1,24 @@
 - name: 'Import dump file to local db'
   hosts: localhost
-  gather_facts: no
   tasks:
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Download dump file from bitbacket'
+      when: dump_src == 'bitbacket'
+      raw: "curl -o ./../../../temp/db.zip -s -L  -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" {{BITBACKET_DOWNLOADS_PATH}}/db.zip"
     - name: 'Create temp folder'
       file:
         path: ./../../../temp/db
         state: directory
     - name: 'Unzip file'
       unarchive:
-        unsafe_writes: yes
         dest: ./../../../temp/db
         src: ./../../../temp/db.zip
+
 - name: 'Connect to docker workspace and apply dump'
   hosts: laradockoctober_workspace_1
+  remote_user: laradock
   tasks:
     - name: 'Include global vars'
       include_vars:
@@ -22,17 +28,28 @@
         dir: ./../../vars/{{ env }}
     - name: Apply dump
       raw: "/usr/bin/mysql -h{{DOCKER_PREFIX}}_mysql -u{{DATABASE_USER}} --password={{DATABASE_PASSWORD}} {{DATABASE_NAME}} < /home/laradock/temp/db/db.sql >> /dev/null 2>&1"
+    - name: "Reset admin password"
+      raw: "php artisan basecode:reset_admin_password"
+    - name: Reset mysql settings
+      template:
+        src: ./../../templates/mysql/{{env}}-reset-mail-settings.sh.j2
+        dest: reset-mail-settings.sh
+    - name: Run script
+      raw: "bash reset-mail-settings.sh"
+    - name: Remove script file
+      file:
+        path: "reset-mail-settings.sh"
+        state: absent
+
 - name: 'Remove dump file'
   hosts: localhost
   gather_facts: no
   tasks:
     - name: 'Remove temp folder'
       file:
-        unsafe_writes: yes
         path: ./../../../temp/db
         state: absent
     - name: 'Remove zip file'
       file:
-        unsafe_writes: yes
         path: ./../../../temp/db.zip
         state: absent

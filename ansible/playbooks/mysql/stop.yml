@@ -10,3 +10,4 @@
       name: mysql-{{ PROJECT_NAME }}
       image: "mysql:{{ MYSQL_VERSION }}"
       state: stopped
+      force_kill: yes
