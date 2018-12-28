@@ -1,0 +1,7 @@
+- name: 'Connect to docker workspace and apply migrations'
+  hosts: laradockoctober_workspace_1
+  remote_user: laradock
+  gather_facts: no
+  tasks:
+    - name: 'Apply migrations'
+      raw: "php artisan october:up"

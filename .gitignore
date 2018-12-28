@@ -8,6 +8,8 @@
 
 #app
 /app/vendor
+/app/package-lock.json
+/app/themes/*/assets/*
 /app/themes/*/content/*
 /app/themes/*/content_temp/*
 /app/themes/*/meta/*

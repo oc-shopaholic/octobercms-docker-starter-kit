@@ -1,0 +1,7 @@
+- name: 'Connect to docker workspace and runn composer install'
+  hosts: laradockoctober_workspace_1
+  remote_user: laradock
+  gather_facts: no
+  tasks:
+    - name: 'Run composer install'
+      raw: "composer install"

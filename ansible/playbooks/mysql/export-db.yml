@@ -47,8 +47,8 @@
         dest: ./../../../temp/db.zip
         format: zip
     - name: 'Download dump file to bitbacket'
-      when: dump_src == 'bitbacket'
-      raw: "curl -X POST -s -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" {{BITBACKET_DOWNLOADS_PATH}} -F files=@./../../../temp/db.zip"
+      when: DUMP_SRC == 'bitbacket'
+      raw: "curl -X POST -s -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" https://api.bitbucket.org/2.0/repositories/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}/downloads -F files=@./../../../temp/db.zip"
     - name: 'Remove zip file'
       file:
         path: ./../../../temp/{{item}}

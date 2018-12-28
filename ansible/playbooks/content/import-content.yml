@@ -25,8 +25,8 @@
         path: ./../../../temp/content
         state: directory
     - name: 'Download content files from bitbacket'
-      when: dump_src == 'bitbacket'
-      raw: "curl -o ./../../../temp/content.zip -s -L  -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" {{BITBACKET_DOWNLOADS_PATH}}/content.zip"
+      when: DUMP_SRC == 'bitbacket'
+      raw: "curl -o ./../../../temp/content.zip -s -L  -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" https://api.bitbucket.org/2.0/repositories/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}/downloads/content.zip"
     - name: 'Unzip file'
       unarchive:
         dest: ./../../../temp/content

@@ -1,0 +1,25 @@
+---
+- name: 'Connect to production server and run commands'
+  hosts: "production"
+  remote_user: "app_user"
+  gather_facts: no
+  tasks:
+    - name: 'Run local-up'
+      command: "make local-up inventory=production"
+      args:
+        chdir: "/home/app_user/project"
+    - name: 'Get docker status info'
+      command: "make docker-status"
+      args:
+        chdir: "/home/app_user/project"
+      register: docker_status
+    - debug:
+        var: docker_status.stdout_lines
+    - name: 'Run local-composer-install'
+      command: "make local-composer-install inventory=production"
+      args:
+        chdir: "/home/app_user/project"
+    - name: 'Run local-october-up'
+      command: "make local-october-up inventory=production"
+      args:
+        chdir: "/home/app_user/project"
