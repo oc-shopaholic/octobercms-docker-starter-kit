@@ -17,7 +17,7 @@
         force: true
     - name: 'Create docker .env file'
       template:
-        src: ./../templates/docker/{{ env }}-docker.env.j2
+        src: ./../templates/docker/docker.env.j2
         dest: ./../../.env
         force: true
     - name: 'Replace docker .env file for Windows'

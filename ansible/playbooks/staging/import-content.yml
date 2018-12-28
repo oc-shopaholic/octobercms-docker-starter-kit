@@ -1,0 +1,32 @@
+---
+- name: 'Get droplet IP'
+  hosts: localhost
+  tasks:
+  # Gather facts
+  - name: 'Include global vars'
+    include_vars:
+      dir: ./../../vars/global
+  - name: 'Include environment vars'
+    include_vars:
+      dir: ./../../vars/{{ env }}
+  - name: "Get droplet IP"
+    command: "./../terraform output ip"
+    args:
+        chdir: "./../../../staging/{{ STAGING_PREFIX }}"
+    register: terraform_config
+  - add_host:
+      env: "staging"
+      hostname: "staging"
+      ansible_connection: "ssh"
+      ansible_host: "{{ terraform_config.stdout }}"
+      ansible_port: 22
+      ansible_python_interpreter: "/usr/bin/python3"
+- name: 'Connect to droplet and run commands'
+  hosts: "staging"
+  remote_user: "app_user"
+  gather_facts: no
+  tasks:
+    - name: 'Run import-content'
+      command: "make import-content inventory=staging src={{ DUMP_SRC }}"
+      args:
+        chdir: "/home/app_user/project"

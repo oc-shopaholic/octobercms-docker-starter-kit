@@ -1,0 +1,38 @@
+---
+- name: 'Connect to production server and run commands'
+  hosts: "production"
+  remote_user: "app_user"
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: "Git pull"
+      git:
+        repo: "https://{{ BITBACKET_USER }}:{{ BITBACKET_PASSWORD }}@bitbucket.org/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}.git"
+        dest: "/home/app_user/project"
+        version: "{{ GIT_VERSION }}"
+        update: yes
+        force: yes
+    - name: 'Run local-up'
+      command: "make local-up inventory=production"
+      args:
+        chdir: "/home/app_user/project"
+    - name: 'Get docker status info'
+      command: "make docker-status"
+      args:
+        chdir: "/home/app_user/project"
+      register: docker_status
+    - debug:
+        var: docker_status.stdout_lines
+    - name: 'Run local-composer-install'
+      command: "make local-composer-install inventory=production"
+      args:
+        chdir: "/home/app_user/project"
+    - name: 'Run local-october-up'
+      command: "make local-october-up inventory=production"
+      args:
+        chdir: "/home/app_user/project"

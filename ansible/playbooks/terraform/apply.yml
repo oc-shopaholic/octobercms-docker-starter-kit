@@ -1,0 +1,27 @@
+---
+- name: 'Apply terraform config'
+  hosts: localhost
+  tasks:
+  # Gather facts
+  - name: 'Include global vars'
+    include_vars:
+      dir: ./../../vars/global
+  - name: 'Include environment vars'
+    include_vars:
+      dir: ./../../vars/{{ env }}
+
+  # Generate terraform config
+  - name: 'Create folder'
+    file:
+      path: ./../../../staging/{{ STAGING_PREFIX }}
+      state: directory
+  - name: 'Create main.tf file'
+    template:
+      src: ./../../templates/terraform/main.tf.j2
+      dest: "./../../../staging/{{ STAGING_PREFIX }}/main.tf"
+      force: true
+  - name: 'Apply terraform config'
+    terraform:
+      project_path: "./../../../staging/{{ STAGING_PREFIX }}"
+      binary_path: "./../terraform"
+      force_init: yes
