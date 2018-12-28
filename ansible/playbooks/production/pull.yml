@@ -1,4 +1,20 @@
 ---
+- name: 'Generate css/js assets files'
+  hosts: localhost
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+
+    # Generate assets
+    - name: 'Rum make local-npm-prod'
+      command: "make local-npm-prod inventory=production"
+      args:
+        chdir: "./../../../"
 - name: 'Connect to production server and run commands'
   hosts: "production"
   remote_user: "app_user"
@@ -36,3 +52,22 @@
       command: "make local-october-up inventory=production"
       args:
         chdir: "/home/app_user/project"
+    - name: 'Create theme/assets folder'
+      file:
+        path: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
+        state: directory
+    - name: 'Find directories in app/theme/*/assets folder'
+      find:
+        paths: "./../../../app/themes/{{THEME_NAME}}/assets"
+        file_type: directory
+      delegate_to: localhost
+      register: directory_list
+    - name: 'Copy assets folders'
+      copy:
+        src: "{{ item.path }}"
+        dest: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
+      with_items: "{{ directory_list.files }}"
+    - name: 'Copy mix-manifest.json'
+      copy:
+        src: "./../../../app/themes/{{THEME_NAME}}/assets/mix-manifest.json"
+        dest: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
