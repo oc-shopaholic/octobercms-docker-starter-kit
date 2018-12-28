@@ -1,0 +1,9 @@
+- name: 'Connect to docker workspace and run npm prod'
+  hosts: laradockoctober_workspace_1
+  remote_user: laradock
+  gather_facts: no
+  tasks:
+    - name: 'Run npm install'
+      raw: "npm i"
+    - name: 'Run npm prod'
+      raw: "npm run prod"

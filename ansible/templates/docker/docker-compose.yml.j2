@@ -614,8 +614,8 @@ services:
         - MYSQL_ROOT_PASSWORD=${PMA_ROOT_PASSWORD}
       ports:
         - "${PMA_PORT}:80"
-      depends_on:
-        - "${PMA_DB_ENGINE}"
+#      depends_on:
+#        - "${PMA_DB_ENGINE}"
       networks:
         - frontend
         - backend

@@ -1,0 +1,10 @@
+---
+- name: 'Connect to production server and run commands'
+  hosts: "production"
+  remote_user: "app_user"
+  gather_facts: no
+  tasks:
+    - name: 'Run export-mysql-db'
+      command: "make export-mysql-db inventory=production src={{ DUMP_SRC }}"
+      args:
+        chdir: "/home/app_user/project"

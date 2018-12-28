@@ -5,8 +5,8 @@
       include_vars:
         dir: ./../../vars/global
     - name: 'Download dump file from bitbacket'
-      when: dump_src == 'bitbacket'
-      raw: "curl -o ./../../../temp/db.zip -s -L  -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" {{BITBACKET_DOWNLOADS_PATH}}/db.zip"
+      when: DUMP_SRC == 'bitbacket'
+      raw: "curl -o ./../../../temp/db.zip -s -L  -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" https://api.bitbucket.org/2.0/repositories/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}/downloads/db.zip"
     - name: 'Create temp folder'
       file:
         path: ./../../../temp/db
@@ -28,6 +28,8 @@
         dir: ./../../vars/{{ env }}
     - name: Apply dump
       raw: "/usr/bin/mysql -h{{DOCKER_PREFIX}}_mysql -u{{DATABASE_USER}} --password={{DATABASE_PASSWORD}} {{DATABASE_NAME}} < /home/laradock/temp/db/db.sql >> /dev/null 2>&1"
+    - name: 'Apply migrations'
+      raw: "php artisan october:up"
     - name: "Reset admin password"
       raw: "php artisan basecode:reset_admin_password"
     - name: Reset mysql settings

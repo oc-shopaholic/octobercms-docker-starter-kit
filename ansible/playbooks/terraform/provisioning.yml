@@ -1,0 +1,100 @@
+---
+- name: 'Create droplet host'
+  hosts: localhost
+  tasks:
+  - name: "Get droplet IP"
+    command: "./../terraform output ip"
+    args:
+      chdir: "./../../../staging/{{ STAGING_PREFIX }}"
+    register: terraform_config
+  - add_host:
+      env: "staging"
+      hostname: "staging"
+      ansible_connection: "ssh"
+      ansible_host: "{{ terraform_config.stdout }}"
+      ansible_port: 22
+      ansible_python_interpreter: "/usr/bin/python3"
+- name: 'Install packages on droplet machine'
+  hosts: "staging"
+  remote_user: root
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: "Install docker packages"
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+    - name: "Add Docker s official GPG key"
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: "Verify that we have the key with the fingerprint"
+      apt_key:
+        id: 0EBFCD88
+        state: present
+    - name: "Set up the stable repository"
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+        update_cache: yes
+    - name: "Update apt packages"
+      apt:
+        update_cache: yes
+    - name: "Install packages"
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+      vars:
+        packages:
+        - ansible
+        - docker-ce
+        - docker-compose
+        - make
+        - zip
+        - unzip
+        - mc
+    - name: "Create user app_user"
+      user:
+        name: app_user
+        uid: 1000
+        groups:
+          - docker
+          - sudo
+        state: present
+        shell: /bin/bash
+        system: no
+        createhome: yes
+        home: /home/app_user
+    - name: 'Create .ssh folder'
+      file:
+        path: /home/app_user/.ssh
+        state: directory
+        owner: app_user
+    - name: "Copy ssh folder from root to new user"
+      copy:
+        remote_src: yes
+        src: "/root/.ssh/authorized_keys"
+        dest: "/home/app_user/.ssh"
+        owner: app_user
+- name: 'Install packages on droplet machine'
+  hosts: "staging"
+  remote_user: "app_user"
+  tasks:
+    - name: "Clone repo"
+      git:
+        repo: "https://{{ BITBACKET_USER }}:{{ BITBACKET_PASSWORD }}@bitbucket.org/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}.git"
+        dest: "/home/app_user/project"
+        version: "{{ GIT_VERSION }}"
+        force: yes

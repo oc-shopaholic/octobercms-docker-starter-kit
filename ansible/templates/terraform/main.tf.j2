@@ -1,0 +1,21 @@
+provider "digitalocean" {
+    token = "{{ DIGITAL_OCEAN_TOCKEN }}"
+}
+
+resource "digitalocean_droplet" "docker-octobercms-{{ PROJECT_NAME }}" {
+    name = "docker-octobercms-{{ PROJECT_NAME }}-{{ STAGING_PREFIX }}"
+    image = "ubuntu-18-04-x64"
+    size = "s-2vcpu-2gb"
+    region = "ams3"
+    ipv6 = true
+    ssh_keys = {{ DIGITAL_OCEAN_SSH_KEY }}
+}
+
+resource "digitalocean_domain" "docker-octobercms-{{ PROJECT_NAME }}" {
+   name = "{{ STAGING_PREFIX }}.{{ PROJECT_NAME }}.lovata.tech"
+   ip_address = "${digitalocean_droplet.docker-octobercms-{{ PROJECT_NAME }}.ipv4_address}"
+}
+
+output "ip" {
+  value = "${digitalocean_droplet.docker-octobercms-{{ PROJECT_NAME }}.ipv4_address}"
+}
