@@ -6,6 +6,34 @@
 2. Run ```sudo usermod -a -G docker $USER```.
 You need **reboot** system, after running the command.
 
+# Usage guide
+
+  * You can run the project using ```make local-up``` command.
+  * You can check docker container status using ```make docker-status``` command.
+  * You can connect to workspace using ```make local-bash``` command.
+  * You can run migrations using ```make local-october-up``` command.
+> **app/vendor** folder is in .gitignore, so after cloning project you need to run ```local-composer-install``` command.
+
+### First start
+
+  * Clone repo with project.
+  * Run ```make local-up``` command.
+  * Run ```local-composer-install``` command.
+  * Import database, content, images. Run ```make import-full``` command.
+  * Connect to workspace. Run ```make local-bash``` command.
+  * Run ```nmp i``` and ```npm run watch``` commands.
+
+### Usual developer day guide
+
+  * Run ```make local-up``` command.
+  * Connect to workspace. Run ```make local-bash``` command.
+  * Run ```npm run watch``` commands.
+  * You start to do the task.
+  
+ >  If you get **database error**, after updating the project, then you can update your database (```make import-mysql-db```) or apply migrations (```make local-october-up```).
+ 
+ >  If you get **non-database error**, after updating the project, then you can try run ```make local-composer-install``` command.
+
 # Available commands (local environment)
 
 ### local-init-env
@@ -17,14 +45,14 @@ make local-init-env
 
 ### local-up
 
-Creates local environment files from templates. Starts docker machines. (local-init-env + docker-compose up)
+Creates local environment files from templates. Starts docker machines.
 ```bash
 make local-up
 ```
 
 ### local-restart
 
-Creates local environment files from templates. Restarts docker machines. (local-init-env + docker-compose up)
+Creates local environment files from templates. Restarts docker machines.
 ```bash
 make local-restart
 ```
@@ -131,11 +159,27 @@ make import-images [src=bitbacket]
 make export-images [src=bitbacket]
 ```
 
+# Full import/export
+
+### import-full
+
+Starts import mysql database, content files, images.
+```bash
+make import-full
+```
+
+### export-full
+
+Starts export mysql database, content files, images.
+```bash
+make export-full
+```
+
 # Available commands (staging environment)
 
 ### staging-up
 
-Creates staging environment files from templates. Starts docker machines.
+Connect to staging server. Creates staging environment files from templates. Starts docker machines.
 ```bash
 make staging-up [prefix=master]
 ```
@@ -226,6 +270,20 @@ make staging-import-images [prefix=master] [src=bitbacket]
   * Upload images.zip archive to bitbacket.
 ```bash
 make staging-export-images [prefix=master] [src=bitbacket]
+```
+
+### staging-import-full
+
+Starts import mysql database, content files, images.
+```bash
+make staging-import-full
+```
+
+### staging-export-full
+
+Starts export mysql database, content files, images.
+```bash
+make staging-export-full
 ```
 
 # Available commands (production environment)
@@ -323,6 +381,20 @@ make production-import-images [prefix=master] [src=bitbacket]
   * Upload images.zip archive to bitbacket.
 ```bash
 make production-export-images [prefix=master] [src=bitbacket]
+```
+
+### production-import-full
+
+Starts import mysql database, content files, images.
+```bash
+make production-import-full
+```
+
+### production-export-full
+
+Starts export mysql database, content files, images.
+```bash
+make production-export-full
 ```
 
 # Project initialisation
