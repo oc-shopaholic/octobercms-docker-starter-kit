@@ -1,9 +1,13 @@
 all:
   hosts:
     localhost:
-      env: staging
+      env: production
       ansible_connection: local
     laradockoctober_workspace_1:
-      env: staging
+      env: production
       ansible_connection: docker
       ansible_python_interpreter: /usr/bin/python3
+    production:
+      env: production
+      ansible_connection: ssh
+      ansible_host: 127.0.0.1
