@@ -9,7 +9,8 @@
 #app
 /app/vendor
 /app/package-lock.json
-/app/themes/*/assets/*
+/app/themes/*/assets/*/css
+/app/themes/*/assets/*/js
 /app/themes/*/content/*
 /app/themes/*/content_temp/*
 /app/themes/*/meta/*
@@ -167,8 +168,6 @@ crashlytics-build.properties
 
 # Docs
 doc
-!/plugins/lovata/customshopaholic/classes/SetExtend.php
-!/themes/techno/partials/project/common/pagination/ajax-pagination.htm
 /.vscode/
 
 yml

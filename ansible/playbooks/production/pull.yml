@@ -56,18 +56,11 @@
       file:
         path: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
         state: directory
-    - name: 'Find directories in app/theme/*/assets folder'
-      find:
-        paths: "./../../../app/themes/{{THEME_NAME}}/assets"
-        file_type: directory
-      delegate_to: localhost
-      register: directory_list
-    - name: 'Copy assets folders'
-      copy:
-        src: "{{ item.path }}"
-        dest: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
-      with_items: "{{ directory_list.files }}"
     - name: 'Copy mix-manifest.json'
       copy:
         src: "./../../../app/themes/{{THEME_NAME}}/assets/mix-manifest.json"
         dest: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
+      with_items:
+        - css
+        - js
+        - mix-manifest.json
