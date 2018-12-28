@@ -7,7 +7,7 @@
       dir: ./../../vars/global
   - name: 'Stop container'
     docker_container:
-      name: mysql-{{ PROJECT_NAME }}
-      image: "mysql:{{ MYSQL_VERSION }}"
-      state: stopped
+      name: "{{DOCKER_PREFIX}}_mysql"
+      image: "mysql:{{MYSQL_VERSION}}"
+      state: absent
       force_kill: yes
