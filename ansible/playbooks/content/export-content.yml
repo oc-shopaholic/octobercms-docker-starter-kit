@@ -18,6 +18,13 @@
       file:
         path: ./../../../temp/content
         state: directory
+    - name: 'Create folders'
+      file:
+        path: ./../../../app/themes/{{THEME_NAME}}/{{item}}
+        state: directory
+      with_items:
+        - content
+        - meta
     - name: 'Copy content to temp folder'
       copy:
         src: ./../../../app/themes/{{THEME_NAME}}/{{item}}
