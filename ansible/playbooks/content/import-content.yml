@@ -31,6 +31,13 @@
       unarchive:
         dest: ./../../../temp/content
         src: ./../../../temp/content.zip
+    - name: 'Create folders'
+      file:
+        path: ./../../../app/themes/{{THEME_NAME}}/{{item}}
+        state: directory
+      with_items:
+        - content
+        - meta
     - name: 'Copy content to *_temp folder'
       copy:
         src: ./../../../app/themes/{{THEME_NAME}}/{{item}}
