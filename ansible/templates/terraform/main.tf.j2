@@ -5,7 +5,7 @@ provider "digitalocean" {
 resource "digitalocean_droplet" "docker-octobercms-{{ PROJECT_NAME }}" {
     name = "docker-octobercms-{{ PROJECT_NAME }}-{{ STAGING_PREFIX }}"
     image = "ubuntu-18-04-x64"
-    size = "s-2vcpu-2gb"
+    size = "s-1vcpu-2gb"
     region = "ams3"
     ipv6 = true
     ssh_keys = {{ DIGITAL_OCEAN_SSH_KEY }}

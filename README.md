@@ -18,7 +18,7 @@ You need **reboot** system, after running the command.
 
   * Clone repo with project.
   * Run ```make local-up``` command.
-  * Run ```local-composer-install``` command.
+  * Run ```make local-composer-install``` command.
   * Import database, content, images. Run ```make import-full``` command.
   * Connect to workspace. Run ```make local-bash``` command.
   * Run ```nmp i``` and ```npm run watch``` commands.
@@ -176,6 +176,20 @@ make export-full
 ```
 
 # Available commands (staging environment)
+
+### staging-create
+
+Creates droplet machine.
+```bash
+make staging-create [prefix=master]
+```
+
+### staging-provisioning
+
+Does server default setup.
+```bash
+make staging-provisioning [prefix=master]
+```
 
 ### staging-up
 
