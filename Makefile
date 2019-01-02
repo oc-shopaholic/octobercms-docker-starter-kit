@@ -155,9 +155,8 @@ project-laravel-mix-install:
 	ansible-playbook --vault-id password ansible/playbooks/project/install-laravel-mix.yml -i ansible/local-hosts.yml
 
 # Git flow commands
-git-flow-release:
-	git flow release start $(version)
-	git flow release finish $(version)
+git-push-release:
+	git checkout develop
 	git push origin develop
 	git checkout master
 	git push origin master
