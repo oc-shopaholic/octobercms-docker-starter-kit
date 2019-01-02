@@ -38,6 +38,7 @@
     - debug:
         var: docker_status.stdout_lines
     - name: 'Run local-composer-install'
+      when: WITHOUT_COMPOSER == true
       command: "make local-composer-install inventory=staging"
       args:
         chdir: "/home/app_user/project"

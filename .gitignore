@@ -6,7 +6,7 @@
 .terraform/
 
 #app
-/app/vendor
+#/app/vendor
 /app/package-lock.json
 /app/themes/*/assets/css
 /app/themes/*/assets/js
