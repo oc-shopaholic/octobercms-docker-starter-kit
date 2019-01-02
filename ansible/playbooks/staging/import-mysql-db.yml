@@ -30,3 +30,6 @@
       command: "make import-mysql-db inventory=staging src={{ DUMP_SRC }}"
       args:
         chdir: "/home/app_user/project"
+      register: command_result
+    - debug:
+        var: command_result.stdout_lines
