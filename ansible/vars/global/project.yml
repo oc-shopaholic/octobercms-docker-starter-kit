@@ -3,6 +3,8 @@ PROJECT_NAME: october
 PROJECT_URL: october.loc
 THEME_NAME: lovata
 
+WITHOUT_COMPOSER: false
+
 # Available values: nginx|apache2|caddy
 WEBSERVER_TYPE: nginx
 
