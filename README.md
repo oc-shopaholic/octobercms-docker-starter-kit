@@ -202,7 +202,7 @@ make staging-up [prefix=master]
 
 Connect to staging server and update project
 ```bash
-make staging-pull [version=master]
+make staging-pull [prefix=master] [version=master]
 ```
 
 ### staging-restart
