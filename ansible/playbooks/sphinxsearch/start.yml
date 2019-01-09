@@ -1,0 +1,24 @@
+---
+- name: 'Start Sphinx search container'
+  hosts: localhost
+  tasks:
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: 'Start container'
+      when: ENABLE_SPHINXSEARCH == true
+      docker_container:
+        name: "{{DOCKER_PREFIX}}_sphinxsearch"
+        image: "sphinxsearch:latest"
+        state: started
+        restart_policy: on-failure
+        volumes:
+        - "{{ DATA_PATH_HOST }}/sphinxsearch:/var/lib/sphinx/data"
+        ports:
+        - "9312:9312"
+        - "9306:9306"
+        networks:
+          - name: "{{DOCKER_PREFIX}}_backend"

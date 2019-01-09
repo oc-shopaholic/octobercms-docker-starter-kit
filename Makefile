@@ -1,33 +1,51 @@
 prefix = 'staging'
 inventory = 'local'
 version = 'master'
+src = 'bitbucket'
 
 # Local commands
-local-init-env:
-	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml
-local-up:
-	make local-init-env
+local-first-start:
+	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 	docker-compose up -d
 	ansible-playbook --vault-id password ansible/playbooks/mysql/build.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
+	make local-composer-install
+	make import-full src=$(src)
+	make local-october-up
+	make local-npm-prod
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/build.yml -i ansible/$(inventory)-hosts.yml
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/start.yml -i ansible/$(inventory)-hosts.yml
+	make docker-status
+local-up:
+	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
+	docker-compose up -d
+	ansible-playbook --vault-id password ansible/playbooks/mysql/build.yml -i ansible/$(inventory)-hosts.yml
+	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/build.yml -i ansible/$(inventory)-hosts.yml
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/start.yml -i ansible/$(inventory)-hosts.yml
 	make docker-status
 local-stop:
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/stop.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/stop.yml -i ansible/$(inventory)-hosts.yml
 	docker-compose stop
 local-restart:
-	make local-init-env
+	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/stop.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/stop.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/start.yml -i ansible/$(inventory)-hosts.yml
 	docker-compose stop
 	docker-compose up -d
 	make docker-status
 local-rebuild:
 	make local-stop
-	make local-init-env
+	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/rebuild.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/rebuild.yml -i ansible/$(inventory)-hosts.yml
 	docker-compose build
 	docker-compose up -d
 	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/start.yml -i ansible/$(inventory)-hosts.yml
 	make docker-status
 local-bash:
 	docker-compose exec --user=laradock workspace bash
@@ -37,6 +55,8 @@ local-october-up:
 	ansible-playbook --vault-id password ansible/playbooks/project/october-up.yml -i ansible/$(inventory)-hosts.yml
 local-npm-prod:
 	ansible-playbook --vault-id password ansible/playbooks/project/npm-prod.yml -i ansible/$(inventory)-hosts.yml
+#local-sphinx-rotate-all:
+#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/indexer-rotate-all.yml -i ansible/$(inventory)-hosts.yml
 
 # Import/export database commands
 import-mysql-db:
@@ -67,6 +87,11 @@ export-full :
 	ansible-playbook --vault-id password ansible/playbooks/images/export-images.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 
 # Staging commands
+staging-first-start:
+	make staging-create prefix=$(prefix)
+	sleep 30
+	make staging-provisioning prefix=$(prefix) version=$(version)
+	ansible-playbook --vault-id password ansible/playbooks/staging/first-start.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
 staging-create :
 	ansible-playbook --vault-id password ansible/playbooks/terraform/apply.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 staging-provisioning :
@@ -103,6 +128,8 @@ staging-export-full :
 	ansible-playbook --vault-id password ansible/playbooks/staging/export-mysql-db.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
 	ansible-playbook --vault-id password ansible/playbooks/staging/export-content.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
 	ansible-playbook --vault-id password ansible/playbooks/staging/export-images.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
+#staging-sphinx-rotate-all :
+#	ansible-playbook --vault-id password ansible/playbooks/staging/sphinx-rotate-all.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 
 # Production server commands
 production-create :
@@ -142,6 +169,8 @@ production-export-full :
 	ansible-playbook --vault-id password ansible/playbooks/production/export-mysql-db.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 	ansible-playbook --vault-id password ansible/playbooks/production/export-content.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 	ansible-playbook --vault-id password ansible/playbooks/production/export-images.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
+#production-sphinx-rotate-all :
+#	ansible-playbook --vault-id password ansible/playbooks/production/sphinx-rotate-all.yml -i ansible/production-hosts.yml
 
 # Docker commands
 docker-status:

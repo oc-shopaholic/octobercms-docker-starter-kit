@@ -20,17 +20,9 @@
       with_items:
       - content
       - meta
-    - name: 'Create temp folder'
-      file:
-        path: ./../../../temp/content
-        state: directory
-    - name: 'Download content files from bitbacket'
-      when: DUMP_SRC == 'bitbacket'
+    - name: 'Download content files from bitbucket'
+      when: DUMP_SRC == 'bitbucket'
       raw: "curl -o ./../../../temp/content.zip -s -L  -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" https://api.bitbucket.org/2.0/repositories/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}/downloads/content.zip"
-    - name: 'Unzip file'
-      unarchive:
-        dest: ./../../../temp/content
-        src: ./../../../temp/content.zip
     - name: 'Create folders'
       file:
         path: ./../../../app/themes/{{THEME_NAME}}/{{item}}
@@ -45,13 +37,17 @@
       with_items:
       - content
       - meta
-    - name: 'Copy content from temp folder'
-      copy:
-        src: ./../../../temp/content/{{item}}
-        dest: ./../../../app/themes/{{THEME_NAME}}/
+    - name: 'Remove old folders'
+      file:
+        path: ./../../../app/themes/{{THEME_NAME}}/{{item}}
+        state: absent
       with_items:
       - content
       - meta
+    - name: 'Unzip file'
+      unarchive:
+        dest: ./../../../app/themes/{{THEME_NAME}}
+        src: ./../../../temp/content.zip
     - name: 'Remove zip file'
       file:
         path: ./../../../temp/{{item}}

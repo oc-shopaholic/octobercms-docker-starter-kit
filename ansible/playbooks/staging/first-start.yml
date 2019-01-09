@@ -26,8 +26,8 @@
   remote_user: "app_user"
   gather_facts: no
   tasks:
-    - name: 'Run local-up'
-      command: "make local-up inventory=staging prefix={{ STAGING_PREFIX }}"
+    - name: 'Run local-first-start'
+      command: "make local-first-start inventory=staging prefix={{ STAGING_PREFIX }} src={{ DUMP_SRC }}"
       args:
         chdir: "/home/app_user/project"
     - name: 'Get docker status info'
@@ -37,16 +37,3 @@
       register: docker_status
     - debug:
         var: docker_status.stdout_lines
-    - name: 'Run local-composer-install'
-      when: WITHOUT_COMPOSER == true
-      command: "make local-composer-install inventory=staging"
-      args:
-        chdir: "/home/app_user/project"
-    - name: 'Run local-october-up'
-      command: "make local-october-up inventory=staging"
-      args:
-        chdir: "/home/app_user/project"
-    - name: 'Run local-npm-prod'
-      command: "make local-npm-prod inventory=staging"
-      args:
-        chdir: "/home/app_user/project"

@@ -1,7 +1,14 @@
 - name: 'Connect to docker workspace and runn composer install'
   hosts: laradockoctober_workspace_1
   remote_user: laradock
-  gather_facts: no
   tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
     - name: 'Run composer install'
+      when: WITHOUT_COMPOSER == true
       raw: "composer install"

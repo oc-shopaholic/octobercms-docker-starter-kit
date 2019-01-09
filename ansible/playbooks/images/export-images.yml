@@ -13,29 +13,11 @@
         state: absent
       with_items:
         - images.zip
-        - images
-    - name: 'Create temp folder'
-      file:
-        path: ./../../../temp/images
-        state: directory
-    - name: 'Copy images to temp folder'
-      copy:
-        src: ./../../../app/storage/app/{{item}}
-        dest: ./../../../temp/images
-      with_items:
-        - media
-        - uploads
     - name: 'Create zip file'
       archive:
-        path: ./../../../temp/images/
+        path: ./../../../app/storage/app/
         dest: ./../../../temp/images.zip
         format: zip
-    - name: 'Download dump file to bitbacket'
-      when: DUMP_SRC == 'bitbacket'
+    - name: 'Download dump file to bitbucket'
+      when: DUMP_SRC == 'bitbucket'
       raw: "curl -X POST -s -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" https://api.bitbucket.org/2.0/repositories/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}/downloads -F files=@./../../../temp/images.zip"
-    - name: 'Remove zip file'
-      file:
-        path: ./../../../temp/{{item}}
-        state: absent
-      with_items:
-      - images
