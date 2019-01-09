@@ -26,27 +26,7 @@
   remote_user: "app_user"
   gather_facts: no
   tasks:
-    - name: 'Run local-up'
-      command: "make local-up inventory=staging prefix={{ STAGING_PREFIX }}"
-      args:
-        chdir: "/home/app_user/project"
-    - name: 'Get docker status info'
-      command: "make docker-status"
-      args:
-        chdir: "/home/app_user/project"
-      register: docker_status
-    - debug:
-        var: docker_status.stdout_lines
-    - name: 'Run local-composer-install'
-      when: WITHOUT_COMPOSER == true
-      command: "make local-composer-install inventory=staging"
-      args:
-        chdir: "/home/app_user/project"
-    - name: 'Run local-october-up'
-      command: "make local-october-up inventory=staging"
-      args:
-        chdir: "/home/app_user/project"
-    - name: 'Run local-npm-prod'
-      command: "make local-npm-prod inventory=staging"
+    - name: 'Run local-sphinx-rotate-all'
+      command: "make local-sphinx-rotate-all inventory=staging"
       args:
         chdir: "/home/app_user/project"

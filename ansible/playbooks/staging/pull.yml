@@ -40,7 +40,7 @@
         update: yes
         force: yes
     - name: 'Run local-up'
-      command: "make local-up inventory=staging"
+      command: "make local-up inventory=staging prefix={{ STAGING_PREFIX }}"
       args:
         chdir: "/home/app_user/project"
     - name: 'Get docker status info'

@@ -4,8 +4,8 @@
     - name: 'Include global vars'
       include_vars:
         dir: ./../../vars/global
-    - name: 'Download dump file from bitbacket'
-      when: DUMP_SRC == 'bitbacket'
+    - name: 'Download dump file from bitbucket'
+      when: DUMP_SRC == 'bitbucket'
       raw: "curl -o ./../../../temp/db.zip -s -L  -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" https://api.bitbucket.org/2.0/repositories/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}/downloads/db.zip"
     - name: 'Create temp folder'
       file:

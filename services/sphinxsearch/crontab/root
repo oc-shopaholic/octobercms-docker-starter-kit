@@ -1,0 +1,1 @@
+*/5 * * * * indexer --rotate --all >> /dev/null 2>&1

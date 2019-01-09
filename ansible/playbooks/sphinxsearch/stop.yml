@@ -1,5 +1,5 @@
 ---
-- name: 'Stop MySQL docker container'
+- name: 'Stop Sphinx search container'
   hosts: localhost
   tasks:
   - name: 'Include global vars'
@@ -7,7 +7,7 @@
       dir: ./../../vars/global
   - name: 'Stop container'
     docker_container:
-      name: "{{DOCKER_PREFIX}}_mysql"
-      image: "mysql:{{MYSQL_VERSION}}"
+      name: "{{DOCKER_PREFIX}}_sphinxsearch"
+      image: "sphinxsearch:latest"
       state: stopped
       force_kill: yes

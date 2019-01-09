@@ -47,6 +47,12 @@
         src: ./../templates/supervisor/{{ env }}-queue.conf
         dest: ./../../services/php-worker/supervisord.d/queue.conf
         force: true
+    - name: 'Create sphinx.conf file'
+      when: ENABLE_SPHINXSEARCH
+      template:
+        src: ./../templates/sphinxsearch/sphinx.conf
+        dest: ./../../services/sphinxsearch/sphinx.conf
+        force: true
 
     # Generate app files
     - name: 'Create .htaccess file'

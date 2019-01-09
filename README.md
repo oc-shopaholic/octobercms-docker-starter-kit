@@ -17,9 +17,7 @@ You need **reboot** system, after running the command.
 ### First start
 
   * Clone repo with project.
-  * Run ```make local-up``` command.
-  * Run ```make local-composer-install``` command.
-  * Import database, content, images. Run ```make import-full``` command.
+  * Run ```make local-first-start``` command.
   * Connect to workspace. Run ```make local-bash``` command.
   * Run ```nmp i``` and ```npm run watch``` commands.
 
@@ -33,6 +31,19 @@ You need **reboot** system, after running the command.
  >  If you get **database error**, after updating the project, then you can update your database (```make import-mysql-db```) or apply migrations (```make local-october-up```).
  
  >  If you get **non-database error**, after updating the project, then you can try run ```make local-composer-install``` command.
+
+### Useful links
+
+  * Beanstalkd console - http://localhost:2080/
+  * PHPMyAdmin - http://localhost:8080/
+  * Maildev - http://localhost:1080/
+  * Kibana - http://localhost:5601/
+  * Grafana - http://localhost:3000/
+  * Portainer - http://localhost:9010/
+  * Netdata - http://localhost:19999/
+  * Metabase - http://localhost:3030/
+  * PHPRedisAdmin - http://localhost:9987/
+  * Docker web UI - http://localhost:8754/
 
 # Available commands (local environment)
 
@@ -99,64 +110,71 @@ Connect to workspace with laradock user and run ```npm run prod```
 make local-npm-prod
 ```
 
+### local-sphinx-rotate-all
+
+Connect to Sphinx search container and run ```indexer --rotate --all```
+```bash
+make local-sphinx-rotate-all
+```
+
 # Database
 
 ### import-mysql-db
 
-  * Download db.zip file from bitbacket.
+  * Download db.zip file from bitbucket.
   * Get dump db.sql file from temp/db.zip archive.
   * Import mysql dump file.
 ```bash
-make import-mysql-db [src=bitbacket]
+make import-mysql-db [src=bitbucket]
 ```
 
 ### export-mysql-db
 
   * Export mysql database in db.sql file.
   * Create temp/db.zip archive with db.sql file.
-  * Upload db.zip archive to bitbacket.
+  * Upload db.zip archive to bitbucket.
 ```bash
-make export-mysql-db [src=bitbacket]
+make export-mysql-db [src=bitbucket]
 ```
 
 # Content files
 
 ### import-content
 
-  * Download content.zip file from bitbacket.
+  * Download content.zip file from bitbucket.
   * Get content files from temp/content.zip archive.
   * Copy content folders: meta, content.
 ```bash
-make import-content [src=bitbacket]
+make import-content [src=bitbucket]
 ```
 
 ### export-content
 
   * Copy content folders: meta, content.
   * Create temp/content.zip archive with content files.
-  * Upload content.zip archive to bitbacket.
+  * Upload content.zip archive to bitbucket.
 ```bash
-make export-content [src=bitbacket]
+make export-content [src=bitbucket]
 ```
 
 # Image files
 
 ### import-images
 
-  * Download images.zip file from bitbacket.
+  * Download images.zip file from bitbucket.
   * Get images files from temp/images.zip archive.
   * Copy images folders: upload, media.
 ```bash
-make import-images [src=bitbacket]
+make import-images [src=bitbucket]
 ```
 
 ### export-images
 
   * Copy images folders: upload, media.
   * Create temp/images.zip archive with images files.
-  * Upload images.zip archive to bitbacket.
+  * Upload images.zip archive to bitbucket.
 ```bash
-make export-images [src=bitbacket]
+make export-images [src=bitbucket]
 ```
 
 # Full import/export
@@ -202,7 +220,7 @@ make staging-up [prefix=master]
 
 Connect to staging server and update project
 ```bash
-make staging-pull [version=master]
+make staging-pull [prefix=master] [version=master]
 ```
 
 ### staging-restart
@@ -229,11 +247,11 @@ make staging-rebuild [prefix=master]
 ### staging-import-mysql-db
 
   * Connect to staging droplet.
-  * Download db.zip file from bitbacket.
+  * Download db.zip file from bitbucket.
   * Get dump db.sql file from temp/db.zip archive.
   * Import mysql dump file.
 ```bash
-make staging-import-mysql-db [prefix=master] [src=bitbacket]
+make staging-import-mysql-db [prefix=master] [src=bitbucket]
 ```
 
 ### staging-export-mysql-db
@@ -241,19 +259,19 @@ make staging-import-mysql-db [prefix=master] [src=bitbacket]
   * Connect to staging droplet.
   * Export mysql database in db.sql file.
   * Create temp/db.zip archive with db.sql file.
-  * Upload db.zip archive to bitbacket.
+  * Upload db.zip archive to bitbucket.
 ```bash
-make staging-export-mysql-db [prefix=master] [src=bitbacket]
+make staging-export-mysql-db [prefix=master] [src=bitbucket]
 ```
 
 ### staging-import-content
 
   * Connect to staging droplet.
-  * Download content.zip file from bitbacket.
+  * Download content.zip file from bitbucket.
   * Get content files from temp/content.zip archive.
   * Copy content folders: meta, content.
 ```bash
-make staging-import-content [prefix=master] [src=bitbacket]
+make staging-import-content [prefix=master] [src=bitbucket]
 ```
 
 ### staging-export-content
@@ -261,19 +279,19 @@ make staging-import-content [prefix=master] [src=bitbacket]
   * Connect to staging droplet.
   * Copy content folders: meta, content.
   * Create temp/content.zip archive with content files.
-  * Upload content.zip archive to bitbacket.
+  * Upload content.zip archive to bitbucket.
 ```bash
-make staging-export-content [prefix=master] [src=bitbacket]
+make staging-export-content [prefix=master] [src=bitbucket]
 ```
 
 ### staging-import-images
 
   * Connect to staging droplet.
-  * Download images.zip file from bitbacket.
+  * Download images.zip file from bitbucket.
   * Get images files from temp/images.zip archive.
   * Copy images folders: upload, media.
 ```bash
-make staging-import-images [prefix=master] [src=bitbacket]
+make staging-import-images [prefix=master] [src=bitbucket]
 ```
 
 ### staging-export-images
@@ -281,9 +299,9 @@ make staging-import-images [prefix=master] [src=bitbacket]
   * Connect to staging droplet.
   * Copy images folders: upload, media.
   * Create temp/images.zip archive with images files.
-  * Upload images.zip archive to bitbacket.
+  * Upload images.zip archive to bitbucket.
 ```bash
-make staging-export-images [prefix=master] [src=bitbacket]
+make staging-export-images [prefix=master] [src=bitbucket]
 ```
 
 ### staging-import-full
@@ -298,6 +316,13 @@ make staging-import-full
 Starts export mysql database, content files, images.
 ```bash
 make staging-export-full
+```
+
+### staging-sphinx-rotate-all
+
+Connect to Sphinx search container and run ```indexer --rotate --all```
+```bash
+make staging-sphinx-rotate-all
 ```
 
 # Available commands (production environment)
@@ -340,11 +365,11 @@ make production-rebuild [prefix=master]
 ### production-import-mysql-db
 
   * Connect to production server.
-  * Download db.zip file from bitbacket.
+  * Download db.zip file from bitbucket.
   * Get dump db.sql file from temp/db.zip archive.
   * Import mysql dump file.
 ```bash
-make production-import-mysql-db [prefix=master] [src=bitbacket]
+make production-import-mysql-db [prefix=master] [src=bitbucket]
 ```
 
 ### production-export-mysql-db
@@ -352,19 +377,19 @@ make production-import-mysql-db [prefix=master] [src=bitbacket]
   * Connect to production server.
   * Export mysql database in db.sql file.
   * Create temp/db.zip archive with db.sql file.
-  * Upload db.zip archive to bitbacket.
+  * Upload db.zip archive to bitbucket.
 ```bash
-make production-export-mysql-db [prefix=master] [src=bitbacket]
+make production-export-mysql-db [prefix=master] [src=bitbucket]
 ```
 
 ### production-import-content
 
   * Connect to production server.
-  * Download content.zip file from bitbacket.
+  * Download content.zip file from bitbucket.
   * Get content files from temp/content.zip archive.
   * Copy content folders: meta, content.
 ```bash
-make production-import-content [prefix=master] [src=bitbacket]
+make production-import-content [prefix=master] [src=bitbucket]
 ```
 
 ### production-export-content
@@ -372,19 +397,19 @@ make production-import-content [prefix=master] [src=bitbacket]
   * Connect to production server.
   * Copy content folders: meta, content.
   * Create temp/content.zip archive with content files.
-  * Upload content.zip archive to bitbacket.
+  * Upload content.zip archive to bitbucket.
 ```bash
-make production-export-content [prefix=master] [src=bitbacket]
+make production-export-content [prefix=master] [src=bitbucket]
 ```
 
 ### production-import-images
 
   * Connect to production server.
-  * Download images.zip file from bitbacket.
+  * Download images.zip file from bitbucket.
   * Get images files from temp/images.zip archive.
   * Copy images folders: upload, media.
 ```bash
-make production-import-images [prefix=master] [src=bitbacket]
+make production-import-images [prefix=master] [src=bitbucket]
 ```
 
 ### production-export-images
@@ -392,9 +417,9 @@ make production-import-images [prefix=master] [src=bitbacket]
   * Connect to production server.
   * Copy images folders: upload, media.
   * Create temp/images.zip archive with images files.
-  * Upload images.zip archive to bitbacket.
+  * Upload images.zip archive to bitbucket.
 ```bash
-make production-export-images [prefix=master] [src=bitbacket]
+make production-export-images [prefix=master] [src=bitbucket]
 ```
 
 ### production-import-full
@@ -409,6 +434,13 @@ make production-import-full
 Starts export mysql database, content files, images.
 ```bash
 make production-export-full
+```
+
+### production-sphinx-rotate-all
+
+Connect to Sphinx search container and run ```indexer --rotate --all```
+```bash
+make production-sphinx-rotate-all
 ```
 
 # Project initialisation

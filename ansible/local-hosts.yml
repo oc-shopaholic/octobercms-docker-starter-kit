@@ -7,3 +7,7 @@ all:
       env: local
       ansible_connection: docker
       ansible_python_interpreter: /usr/bin/python3
+    laradockoctober_sphinxsearch:
+      env: local
+      ansible_connection: docker
+      ansible_python_interpreter: /usr/bin/python3
