@@ -1,0 +1,90 @@
+---
+- name: 'Install packages on production machine'
+  hosts: "production"
+  remote_user: root
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: "Install docker packages"
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+    - name: "Add Docker s official GPG key"
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: "Verify that we have the key with the fingerprint"
+      apt_key:
+        id: 0EBFCD88
+        state: present
+    - name: "Set up the stable repository"
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+        update_cache: yes
+    - name: "Update apt packages"
+      apt:
+        update_cache: yes
+    - name: "Install packages"
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+      vars:
+        packages:
+        - ansible
+        - docker-ce
+        - docker-compose
+        - make
+        - zip
+        - unzip
+        - mc
+    - name: "Create user app_user"
+      user:
+        name: app_user
+        uid: 2000
+        groups:
+          - docker
+          - sudo
+        state: present
+        shell: /bin/bash
+        system: no
+        #password:
+        createhome: yes
+        home: /home/app_user
+    - add_host:
+        env: "production"
+        hostname: "production_app"
+        ansible_connection: "ssh"
+        ansible_host: "{{ PRODUCTION_SERVER_IP }}"
+        ansible_port: "{{ PRODUCTION_SERVER_PORT }}"
+        ansible_ssh_pass: "{{ SERVER_APP_USER_PASS }}"
+        ansible_python_interpreter: "/usr/bin/python3"
+- name: 'Install packages on production machine'
+  hosts: "production_app"
+  remote_user: "app_user"
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: "Clone repo"
+      git:
+        repo: "https://{{ BITBACKET_USER }}:{{ BITBACKET_PASSWORD }}@bitbucket.org/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}.git"
+        dest: "/home/app_user/project"
+        version: "{{ GIT_VERSION }}"
+        force: yes

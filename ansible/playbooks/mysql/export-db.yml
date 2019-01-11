@@ -27,7 +27,7 @@
         dir: ./../../vars/{{ env }}
 
     # Create dump file
-    - name: Apply dump
+    - name: Create dump file
       raw: "/usr/bin/mysqldump -h{{DOCKER_PREFIX}}_mysql -u{{DATABASE_USER}} --password={{DATABASE_PASSWORD}} {{DATABASE_NAME}} > /home/laradock/temp/db/db.sql"
 
 - name: 'Export dump file from local db'

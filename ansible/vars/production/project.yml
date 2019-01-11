@@ -17,12 +17,12 @@ ENABLE_LARAVEL_HORIZON: false
 ENABLE_RABBITMQ: false
 
 ### Mail #############################################################
-ENABLE_MAILDEV: true
+ENABLE_MAILDEV: false
 ENABLE_MAILHOG: false
 ENABLE_MAILU: false
 
 ### Database interface ###############################################
-ENABLE_PHPMYADMIN: false
+ENABLE_PHPMYADMIN: true
 ENABLE_ADMINER: false
 ENABLE_PGADMIN: false
 ENABLE_MONGOWEBUI: false

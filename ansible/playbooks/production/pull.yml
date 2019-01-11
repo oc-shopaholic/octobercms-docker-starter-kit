@@ -15,8 +15,17 @@
       command: "make local-npm-prod inventory=production"
       args:
         chdir: "./../../../"
+    - add_host:
+        env: "production"
+        hostname: "production_app"
+        ansible_connection: "ssh"
+        ansible_host: "{{ PRODUCTION_SERVER_IP }}"
+        ansible_port: "{{ PRODUCTION_SERVER_PORT }}"
+        ansible_ssh_pass: "{{ SERVER_APP_USER_PASS }}"
+        ansible_sudo_pass: "{{ SERVER_APP_USER_PASS }}"
+        ansible_python_interpreter: "/usr/bin/python3"
 - name: 'Connect to production server and run commands'
-  hosts: "production"
+  hosts: "production_app"
   remote_user: "app_user"
   tasks:
     # Gather facts
@@ -65,3 +74,11 @@
         - css
         - js
         - mix-manifest.json
+    - name: 'Apply chown command'
+      file:
+        path: '/home/app_user/project'
+        owner: app_user
+        group: app_user
+        recurse: yes
+      become: true
+      become_user: root
