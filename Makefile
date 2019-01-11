@@ -42,8 +42,7 @@ local-rebuild:
 	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 #	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/rebuild.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/rebuild.yml -i ansible/$(inventory)-hosts.yml
-	docker-compose build
-	docker-compose up -d
+	docker-compose up -d --force-recreate --build
 	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
 #	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/start.yml -i ansible/$(inventory)-hosts.yml
 	make docker-status
@@ -132,12 +131,8 @@ staging-export-full :
 #	ansible-playbook --vault-id password ansible/playbooks/staging/sphinx-rotate-all.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 
 # Production server commands
-production-create :
-	ansible-playbook --vault-id password ansible/playbooks/terraform/apply.yml -i ansible/production-hosts.yml
 production-provisioning :
-	ansible-playbook --vault-id password ansible/playbooks/terraform/provisioning.yml -i ansible/production-hosts.yml --extra-vars "GIT_VERSION=$(version)"
-production-destroy :
-	ansible-playbook --vault-id password ansible/playbooks/terraform/destroy.yml -i ansible/production-hosts.yml
+	ansible-playbook --vault-id password ansible/playbooks/production/provisioning.yml -i ansible/production-hosts.yml --extra-vars "GIT_VERSION=$(version)"
 production-up :
 	ansible-playbook --vault-id password ansible/playbooks/production/up.yml -i ansible/production-hosts.yml
 production-stop :

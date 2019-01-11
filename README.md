@@ -446,7 +446,8 @@ make production-sphinx-rotate-all
 # Project initialisation
 
 Steps of quick start of new project:
-1. You need change *.yml file with vars in folder **ansible/vars**.
-2. You need check and change template files in folder **ansible/templates**.
-3. You need change workspace host name in **ansible/local-hosts.yml** and **ansible/playbooks/mysql/import-db.yml** (For example: **laradockoctober_workspace_1**).
-4. Run ```make project-install``` command.
+  * You need change *.yml file with vars in folder **ansible/vars**.
+  * You need check and change template files in folder **ansible/templates**.
+  * You need change workspace host name in **ansible/local-hosts.yml** and **ansible/playbooks/mysql/import-db.yml** (For example: **laradockoctober_workspace_1**).
+  * You need set app_user password in provision playbooks with using [dock](https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module).
+  * Run ```make project-install``` command.

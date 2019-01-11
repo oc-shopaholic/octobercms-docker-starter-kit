@@ -79,6 +79,20 @@ RUN if [ ${INSTALL_FAKETIME} = true ]; then \
     apt-get install -y libfaketime \
 ;fi
 
+#####################################
+# gd:
+#####################################
+
+RUN apt-get update && apt-get install -y libwebp-dev
+
+# Install the PHP gd library
+RUN docker-php-ext-configure gd \
+        --enable-gd-native-ttf \
+        --with-jpeg-dir=/usr/lib \
+        --with-webp-dir=/usr/include \
+        --with-freetype-dir=/usr/include/freetype2 && \
+    docker-php-ext-install gd
+
 ###########################################################################
 # SOAP:
 ###########################################################################

@@ -53,6 +53,12 @@
         src: ./../templates/sphinxsearch/sphinx.conf
         dest: ./../../services/sphinxsearch/sphinx.conf
         force: true
+    - name: 'Create config.php for beanstalkd-console'
+      when: ENABLE_BEANSTALKD
+      template:
+        src: ./../templates/beanstalkd-console/{{ env }}-config.php
+        dest: ./../../services/beanstalkd-console/config.php
+        force: true
 
     # Generate app files
     - name: 'Create .htaccess file'
