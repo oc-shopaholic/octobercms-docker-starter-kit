@@ -7,7 +7,7 @@
     - name: 'Include environment vars'
       include_vars:
         dir: ./../../vars/{{ env }}
-    - name: 'Remove zip file'
+    - name: 'Remove old zip file'
       file:
         path: ./../../../temp/{{item}}
         state: absent

@@ -33,5 +33,4 @@
         path: ./../../../temp/{{item}}
         state: absent
       with_items:
-      - images
       - images.zip

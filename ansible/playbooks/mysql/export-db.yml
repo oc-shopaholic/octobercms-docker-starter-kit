@@ -49,7 +49,7 @@
     - name: 'Download dump file to bitbucket'
       when: DUMP_SRC == 'bitbucket'
       raw: "curl -X POST -s -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" https://api.bitbucket.org/2.0/repositories/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}/downloads -F files=@./../../../temp/db.zip"
-    - name: 'Remove zip file'
+    - name: 'Remove temp folder'
       file:
         path: ./../../../temp/{{item}}
         state: absent

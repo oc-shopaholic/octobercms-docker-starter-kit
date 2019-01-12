@@ -1,3 +1,15 @@
+Features:
+  * Based on [laradock](https://laradock.io/).
+  * Make commands based on ansible playbooks.
+  * Allows you to store configuration files for local/staging/production environments in the repository.
+  * Allows you to store credentials and settings in encrypted .yml with using [ansible vault](https://docs.ansible.com/ansible/2.4/vault.html).
+  * Commands allow you to quickly up/stop/restart/rebuild docker containers on different environments (local, staging, production).
+  * Commands allow you to quickly create staging server with using [DO droplets](https://www.digitalocean.com/products/droplets/).
+  * Commands allow you to quickly configure production server.
+  * Commands allow you to quickly update your staging/production servers.
+  * Commands allow you to quickly install OctoberCMS and start new project with [empty theme](https://github.com/lovata/octobercms-starter-kit-laravel-mix).
+  * Commands allow you to quickly import/export database, images, content with saving zip archive on bitbacket
+
 # Prepare local environment
 
 1. Install **docker, ansible, make**.
@@ -12,7 +24,7 @@ You need **reboot** system, after running the command.
   * You can check docker container status using ```make docker-status``` command.
   * You can connect to workspace using ```make local-bash``` command.
   * You can run migrations using ```make local-october-up``` command.
-> **app/vendor** folder is in .gitignore, so after cloning project you need to run ```local-composer-install``` command.
+> **app/vendor** folder can be in .gitignore file, so after cloning project you need to run ```local-composer-install``` command.
 
 ### First start
 
@@ -34,36 +46,29 @@ You need **reboot** system, after running the command.
 
 ### Useful links
 
-  * Beanstalkd console - http://localhost:2080/
-  * PHPMyAdmin - http://localhost:8080/
   * Maildev - http://localhost:1080/
-  * Kibana - http://localhost:5601/
-  * Grafana - http://localhost:3000/
-  * Portainer - http://localhost:9010/
+  * PHPMyAdmin - http://localhost:8080/
+  * Beanstalkd console - http://localhost:2080/
   * Netdata - http://localhost:19999/
+  * Grafana - http://localhost:3000/
   * Metabase - http://localhost:3030/
-  * PHPRedisAdmin - http://localhost:9987/
+  * Portainer - http://localhost:9010/
   * Docker web UI - http://localhost:8754/
+  * PHPRedisAdmin - http://localhost:9987/
+  * Kibana - http://localhost:5601/
 
 # Available commands (local environment)
 
-### local-init-env
-
-Creates local environment files from templates.
-```bash
-make local-init-env
-```
-
 ### local-up
 
-Creates local environment files from templates. Starts docker machines.
+Starts docker machines.
 ```bash
 make local-up
 ```
 
 ### local-restart
 
-Creates local environment files from templates. Restarts docker machines.
+Restarts docker machines.
 ```bash
 make local-restart
 ```
@@ -195,23 +200,28 @@ make export-full
 
 # Available commands (staging environment)
 
+Features:
+  * Allow you to create/update [DO droplets](https://www.digitalocean.com/products/droplets/).
+  * Creates app_user on server. Docker container starts from 'app_user' user. Project folder is '/home/app_user/project'.
+  * Allow you to quickly update project on [DO droplets](https://www.digitalocean.com/products/droplets/).
+
 ### staging-create
 
 Creates droplet machine.
 ```bash
-make staging-create [prefix=master]
+make staging-create [prefix=staging]
 ```
 
 ### staging-provisioning
 
-Does server default setup.
+Configure server default setup.
 ```bash
-make staging-provisioning [prefix=master]
+make staging-provisioning [prefix=staging]
 ```
 
 ### staging-up
 
-Connect to staging server. Creates staging environment files from templates. Starts docker machines.
+Connect to staging server. Starts docker machines.
 ```bash
 make staging-up [prefix=master]
 ```
@@ -225,7 +235,7 @@ make staging-pull [prefix=master] [version=master]
 
 ### staging-restart
 
-Creates staging environment files from templates. Restarts docker machines.
+Connect to staging server. Restarts docker machines.
 ```bash
 make staging-restart [prefix=master]
 ```
@@ -327,9 +337,14 @@ make staging-sphinx-rotate-all
 
 # Available commands (production environment)
 
+Features:
+  * Allow you to configure production server.
+  * Creates app_user on server. Docker container starts from 'app_user' user. Project folder is '/home/app_user/project'.
+  * Allow you to quickly update project on production server.
+
 ### production-up
 
-Creates production environment files from templates. Starts docker machines.
+Connect to production server. Starts docker machines.
 ```bash
 make production-up [prefix=master]
 ```
@@ -343,7 +358,7 @@ make production-pull [version=master]
 
 ### production-restart
 
-Creates production environment files from templates. Restarts docker machines.
+Connect to production server. Restarts docker machines.
 ```bash
 make production-restart [prefix=master]
 ```
@@ -446,8 +461,8 @@ make production-sphinx-rotate-all
 # Project initialisation
 
 Steps of quick start of new project:
-  * You need change *.yml file with vars in folder **ansible/vars**.
-  * You need check and change template files in folder **ansible/templates**.
-  * You need change workspace host name in **ansible/local-hosts.yml** and **ansible/playbooks/mysql/import-db.yml** (For example: **laradockoctober_workspace_1**).
-  * You need set app_user password in provision playbooks with using [dock](https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module).
+  * You need to change *.yml files with vars in folder **ansible/vars**.
+  * You need to check and change template files in folder **ansible/templates**.
+  * You need to change workspace host name in **ansible/*-hosts.yml** and playbooks (For example: from **laradockoctober_workspace_1** to **laradockmyproject_workspace_1**).
+  * You need to set app_user password in provision playbooks with using [dock](https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module).
   * Run ```make project-install``` command.
