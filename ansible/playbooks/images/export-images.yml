@@ -7,7 +7,7 @@
     - name: 'Include environment vars'
       include_vars:
         dir: ./../../vars/{{ env }}
-    - name: 'Remove zip file'
+    - name: 'Remove old zip file'
       file:
         path: ./../../../temp/{{item}}
         state: absent
@@ -18,6 +18,6 @@
         path: ./../../../app/storage/app/
         dest: ./../../../temp/images.zip
         format: zip
-    - name: 'Download dump file to bitbucket'
+    - name: 'Download zip file to bitbucket'
       when: DUMP_SRC == 'bitbucket'
       raw: "curl -X POST -s -u \"{{BITBACKET_USER}}:{{BITBACKET_PASSWORD}}\" https://api.bitbucket.org/2.0/repositories/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}/downloads -F files=@./../../../temp/images.zip"
