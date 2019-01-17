@@ -1,0 +1,19 @@
+- name: 'Connect to docker workspace and run october:mirror'
+  hosts: laradockbellbimbo_workspace_1
+  remote_user: laradock
+  gather_facts: no
+  tasks:
+    - name: 'Run october:mirror'
+      raw: "php artisan october:mirror public/"
+    - name: 'Run october:mirror (RU)'
+      raw: "php artisan october:mirror public-ru/"
+    - name: 'Run october:mirror (TEST SERVER)'
+      when: env == 'production'
+      command: "php artisan october:mirror public/"
+      args:
+        chdir: "/home/laradock/project_test"
+    - name: 'Run october:mirror (TEST SERVER)'
+      when: env == 'production'
+      command: "php artisan october:mirror public-ru/"
+      args:
+        chdir: "/home/laradock/project_test"

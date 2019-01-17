@@ -71,6 +71,10 @@ volumes:
   elasticsearch:
     driver: ${VOLUMES_DRIVER}
 {% endif %}
+{% if ENABLE_MOSQUITTO %}
+  mosquitto:
+    driver: ${VOLUMES_DRIVER}
+{% endif %}
 
 services:
 
@@ -200,6 +204,7 @@ services:
           - INSTALL_CALENDAR=${PHP_FPM_INSTALL_CALENDAR}
           - INSTALL_FAKETIME=${PHP_FPM_INSTALL_FAKETIME}
           - INSTALL_IONCUBE=${PHP_FPM_INSTALL_IONCUBE}
+          - INSTALL_APCU=${PHP_FPM_INSTALL_APCU}
           - INSTALL_YAML=${PHP_FPM_INSTALL_YAML}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
@@ -228,10 +233,14 @@ services:
         context: ./services/php-worker
         args:
           - PHP_VERSION=${PHP_VERSION}
+          - PHALCON_VERSION=${PHALCON_VERSION}
           - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
           - INSTALL_BCMATH=${PHP_WORKER_INSTALL_BCMATH}
+          - INSTALL_PHALCON=${PHP_WORKER_INSTALL_PHALCON}
           - INSTALL_SOAP=${PHP_WORKER_INSTALL_SOAP}
           - INSTALL_ZIP_ARCHIVE=${PHP_WORKER_INSTALL_ZIP_ARCHIVE}
+          - PUID=${WORKSPACE_PUID}
+          - PGID=${WORKSPACE_PGID}
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
         - ./services/php-worker/supervisord.d:/etc/supervisord.d
@@ -514,6 +523,19 @@ services:
         - ${DATA_PATH_HOST}/redis:/data
       ports:
         - "${REDIS_PORT}:6379"
+      networks:
+        - backend
+{% endif %}
+{% if ENABLE_ZOOKEEPER %}
+
+### ZooKeeper #########################################
+    zookeeper:
+      build: ./services/zookeeper
+      volumes:
+        - ${DATA_PATH_HOST}/zookeeper/data:/data
+        - ${DATA_PATH_HOST}/zookeeper/datalog:/datalog
+      ports:
+        - "${ZOOKEEPER_PORT}:2181"
       networks:
         - backend
 {% endif %}
@@ -1449,4 +1471,18 @@ services:
         backend:
           aliases:
             - fetchmail
+{% endif %}
+{% if ENABLE_MOSQUITTO %}
+
+### MOSQUITTO Broker #########################################
+    mosquitto:
+      build:
+        context: ./mosquitto
+      volumes:
+        - ${DATA_PATH_HOST}/mosquitto/data:/mosquitto/data
+      ports:
+        - "${MOSQUITTO_PORT}:9001"
+      networks:
+        - frontend
+        - backend
 {% endif %}

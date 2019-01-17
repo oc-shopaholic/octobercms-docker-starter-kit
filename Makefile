@@ -7,6 +7,7 @@ src = 'bitbucket'
 local-first-start:
 	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 	docker-compose up -d
+#	ansible-playbook --vault-id password ansible/playbooks/project/generate-public-mirror.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/build.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
 	make local-composer-install
@@ -19,6 +20,7 @@ local-first-start:
 local-up:
 	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 	docker-compose up -d
+#	ansible-playbook --vault-id password ansible/playbooks/project/generate-public-mirror.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/build.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
 #	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/build.yml -i ansible/$(inventory)-hosts.yml
@@ -36,6 +38,7 @@ local-restart:
 #	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/start.yml -i ansible/$(inventory)-hosts.yml
 	docker-compose stop
 	docker-compose up -d
+#	ansible-playbook --vault-id password ansible/playbooks/project/generate-public-mirror.yml -i ansible/$(inventory)-hosts.yml
 	make docker-status
 local-rebuild:
 	make local-stop
@@ -43,6 +46,7 @@ local-rebuild:
 #	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/rebuild.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/rebuild.yml -i ansible/$(inventory)-hosts.yml
 	docker-compose up -d --force-recreate --build
+#	ansible-playbook --vault-id password ansible/playbooks/project/generate-public-mirror.yml -i ansible/$(inventory)-hosts.yml
 	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
 #	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/start.yml -i ansible/$(inventory)-hosts.yml
 	make docker-status
