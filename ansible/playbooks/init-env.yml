@@ -72,3 +72,8 @@
         src: ./../templates/app/{{ env }}.env
         dest: ./../../app/.env
         force: true
+    - name: 'Copy robots.txt file in app folder'
+      template:
+        src: ./../templates/app/{{ env }}-robots.txt
+        dest: ./../../app/robots.txt
+        force: true

@@ -76,6 +76,7 @@
         shell: /bin/bash
         system: no
         createhome: yes
+        #password:
         home: /home/app_user
     - name: 'Create .ssh folder'
       file:
@@ -88,7 +89,14 @@
         src: "/root/.ssh/authorized_keys"
         dest: "/home/app_user/.ssh"
         owner: app_user
-- name: 'Install packages on droplet machine'
+    - name: "Updated ssh config"
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PasswordAuthentication no"
+        line: "PasswordAuthentication yes"
+    - name: "Restart ssh"
+      command: "service ssh restart"
+- name: 'Clone project on droplet machine'
   hosts: "staging"
   remote_user: "app_user"
   tasks:

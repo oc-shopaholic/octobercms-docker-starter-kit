@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /
+
+User-agent: Yandex
+Disallow: /
+
+Host: https:/{{ PROJECT_URL }}

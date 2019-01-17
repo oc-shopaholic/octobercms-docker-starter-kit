@@ -19,6 +19,7 @@
       hostname: "staging"
       ansible_connection: "ssh"
       ansible_host: "{{ terraform_config.stdout }}"
+      ansible_ssh_pass: "{{ SERVER_APP_USER_PASS }}"
       ansible_port: 22
       ansible_python_interpreter: "/usr/bin/python3"
 - name: 'Connect to droplet and run commands'
