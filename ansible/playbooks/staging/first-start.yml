@@ -20,6 +20,7 @@
       ansible_connection: "ssh"
       ansible_host: "{{ terraform_config.stdout }}"
       ansible_ssh_pass: "{{ SERVER_APP_USER_PASS }}"
+      ansible_sudo_pass: "{{ SERVER_APP_USER_PASS }}"
       ansible_port: 22
       ansible_python_interpreter: "/usr/bin/python3"
 - name: 'Connect to droplet and run commands'
@@ -38,3 +39,11 @@
       register: docker_status
     - debug:
         var: docker_status.stdout_lines
+    - name: 'Apply chown command'
+      file:
+        path: '/home/app_user/project'
+        owner: app_user
+        group: app_user
+        recurse: yes
+      become: true
+      become_user: root
