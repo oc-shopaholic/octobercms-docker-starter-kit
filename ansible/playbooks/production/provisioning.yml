@@ -58,7 +58,7 @@
     - name: "Create user app_user"
       user:
         name: app_user
-        uid: 2000
+        uid: 1000
         groups:
           - docker
           - sudo
@@ -75,6 +75,7 @@
         ansible_host: "{{ PRODUCTION_SERVER_IP }}"
         ansible_port: "{{ PRODUCTION_SERVER_PORT }}"
         ansible_ssh_pass: "{{ SERVER_APP_USER_PASS }}"
+        ansible_sudo_pass: "{{ SERVER_APP_USER_PASS }}"
         ansible_python_interpreter: "/usr/bin/python3"
 - name: 'Install packages on production machine'
   hosts: "production_app"
@@ -93,3 +94,11 @@
         dest: "/home/app_user/project"
         version: "{{ GIT_VERSION }}"
         force: yes
+    - name: 'Apply chown command'
+      file:
+        path: '/home/app_user/project'
+        owner: app_user
+        group: app_user
+        recurse: yes
+      become: true
+      become_user: root
