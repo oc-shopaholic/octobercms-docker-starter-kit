@@ -1,5 +1,5 @@
 - name: 'Connect to docker workspace and run october:mirror'
-  hosts: laradockbellbimbo_workspace_1
+  hosts: laradockoctober_workspace_1
   remote_user: laradock
   gather_facts: no
   tasks:
