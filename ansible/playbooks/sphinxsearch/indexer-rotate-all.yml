@@ -1,5 +1,5 @@
 - name: 'Connect to docker container and run commands'
-  hosts: laradockbellbimbo_sphinxsearch
+  hosts: laradockoctober_sphinxsearch
   gather_facts: no
   tasks:
     - name: Indexer rotate
