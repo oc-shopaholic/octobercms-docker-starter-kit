@@ -31,14 +31,18 @@
     - name: 'Apply migrations'
       raw: "php artisan october:up"
     - name: "Reset admin password"
+      when: env != 'production'
       raw: "php artisan basecode:reset_admin_password"
     - name: Reset mysql settings
+      when: env != 'production'
       template:
         src: ./../../templates/mysql/{{env}}-reset-mail-settings.sh.j2
         dest: reset-mail-settings.sh
     - name: Run script
+      when: env != 'production'
       raw: "bash reset-mail-settings.sh"
     - name: Remove script file
+      when: env != 'production'
       file:
         path: "reset-mail-settings.sh"
         state: absent
