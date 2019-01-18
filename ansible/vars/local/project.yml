@@ -1,3 +1,5 @@
+RESTART_POLICY: no
+
 ### Webserver settings ###############################################
 ENABLE_SSL: false
 
