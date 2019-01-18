@@ -1,3 +1,5 @@
+RESTART_POLICY: on-failure
+
 ### Webserver settings ###############################################
 ENABLE_SSL: false
 

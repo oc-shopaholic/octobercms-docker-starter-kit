@@ -14,7 +14,7 @@
         name: "{{DOCKER_PREFIX}}_mysql"
         image: "mysql:{{MYSQL_VERSION}}"
         state: started
-        restart_policy: on-failure
+        restart_policy: "{{ RESTART_POLICY }}"
         env:
           MYSQL_DATABASE: "{{DATABASE_NAME}}"
           MYSQL_USER: "{{DATABASE_USER}}"

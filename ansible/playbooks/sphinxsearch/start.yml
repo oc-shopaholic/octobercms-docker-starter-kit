@@ -14,7 +14,7 @@
         name: "{{DOCKER_PREFIX}}_sphinxsearch"
         image: "sphinxsearch:latest"
         state: started
-        restart_policy: on-failure
+        restart_policy: "{{ RESTART_POLICY }}"
         volumes:
         - "{{ DATA_PATH_HOST }}/sphinxsearch:/var/lib/sphinx/data"
         ports:
