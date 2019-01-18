@@ -10,6 +10,11 @@
     - name: 'Include environment vars'
       include_vars:
         dir: ./../../vars/{{ env }}
+    - name: "Set up ansible repository"
+      apt_repository:
+        repo: ppa:ansible/ansible
+        state: present
+        update_cache: yes
     - name: "Install docker packages"
       apt:
         name: "{{ packages }}"
