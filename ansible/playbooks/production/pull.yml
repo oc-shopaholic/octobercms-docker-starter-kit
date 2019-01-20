@@ -68,7 +68,7 @@
         state: directory
     - name: 'Copy mix-manifest.json'
       copy:
-        src: "./../../../app/themes/{{THEME_NAME}}/assets/mix-manifest.json"
+        src: "./../../../app/themes/{{THEME_NAME}}/assets/{{ item }}"
         dest: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
       with_items:
         - css
