@@ -1,0 +1,74 @@
+---
+- name: 'Generate css/js assets files'
+  hosts: localhost
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+
+    # Generate assets
+    - name: 'Rum make local-npm-prod'
+      command: "make local-npm-prod inventory=production"
+      args:
+        chdir: "./../../../"
+    - add_host:
+        env: "production"
+        hostname: "production_app"
+        ansible_connection: "ssh"
+        ansible_host: "{{ PRODUCTION_SERVER_IP }}"
+        ansible_port: "{{ PRODUCTION_SERVER_PORT }}"
+        ansible_user: "{{ SERVER_APP_USER_NAME }}"
+        ansible_ssh_pass: "{{ SERVER_APP_USER_PASS }}"
+- name: 'Connect to production server and run commands'
+  hosts: "production_app"
+  tasks:
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+    - name: "Git pull"
+      git:
+        repo: "https://{{ BITBACKET_USER }}:{{ BITBACKET_PASSWORD }}@bitbucket.org/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}.git"
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project"
+        version: "{{ GIT_VERSION }}"
+        update: yes
+        force: yes
+    # Generate app files
+    - name: 'Create .htaccess file'
+      template:
+        src: ./../../templates/apache2/{{ env }}-htaccess.j2
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project/app/.htaccess"
+        force: true
+    - name: 'Create .env file in app folder'
+      template:
+        src: ./../../templates/app/{{ env }}.env
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project/app/.env"
+        force: true
+    - name: 'Copy robots.txt file in app folder'
+      template:
+        src: ./../../templates/app/{{ env }}-robots.txt
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project/app/robots.txt"
+        force: true
+    - name: 'Run october-up'
+      command: "php artisan october:up"
+      args:
+        chdir: "{{ PRODUCTION_SERVER_PATH }}/project/app"
+    - name: 'Create theme/assets folder'
+      file:
+        path: "{{ PRODUCTION_SERVER_PATH }}/project/app/themes/{{THEME_NAME}}/assets"
+        state: directory
+    - name: 'Copy files'
+      copy:
+        src: "./../../../app/themes/{{THEME_NAME}}/assets/{{ item }}"
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project/app/themes/{{THEME_NAME}}/assets"
+      with_items:
+        - css
+        - js
+        - mix-manifest.json
