@@ -21,12 +21,10 @@
         ansible_connection: "ssh"
         ansible_host: "{{ PRODUCTION_SERVER_IP }}"
         ansible_port: "{{ PRODUCTION_SERVER_PORT }}"
+        ansible_user: "{{ SERVER_APP_USER_NAME }}"
         ansible_ssh_pass: "{{ SERVER_APP_USER_PASS }}"
-        ansible_sudo_pass: "{{ SERVER_APP_USER_PASS }}"
-        ansible_python_interpreter: "/usr/bin/python3"
 - name: 'Connect to production server and run commands'
   hosts: "production_app"
-  remote_user: "app_user"
   tasks:
     # Gather facts
     - name: 'Include global vars'
@@ -38,47 +36,39 @@
     - name: "Git pull"
       git:
         repo: "https://{{ BITBACKET_USER }}:{{ BITBACKET_PASSWORD }}@bitbucket.org/{{ BITBACKET_VENDOR }}/{{ BITBACKET_PROJECT_NAME }}.git"
-        dest: "/home/app_user/project"
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project"
         version: "{{ GIT_VERSION }}"
         update: yes
         force: yes
-    - name: 'Run local-up'
-      command: "make local-up inventory=production"
+    # Generate app files
+    - name: 'Create .htaccess file'
+      template:
+        src: ./../../templates/apache2/{{ env }}-htaccess.j2
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project/app/.htaccess"
+        force: true
+    - name: 'Create .env file in app folder'
+      template:
+        src: ./../../templates/app/{{ env }}.env
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project/app/.env"
+        force: true
+    - name: 'Copy robots.txt file in app folder'
+      template:
+        src: ./../../templates/app/{{ env }}-robots.txt
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project/app/robots.txt"
+        force: true
+    - name: 'Run october-up'
+      command: "php artisan october:up"
       args:
-        chdir: "/home/app_user/project"
-    - name: 'Get docker status info'
-      command: "make docker-status"
-      args:
-        chdir: "/home/app_user/project"
-      register: docker_status
-    - debug:
-        var: docker_status.stdout_lines
-    - name: 'Run local-composer-install'
-      when: WITHOUT_COMPOSER == true
-      command: "make local-composer-install inventory=production"
-      args:
-        chdir: "/home/app_user/project"
-    - name: 'Run local-october-up'
-      command: "make local-october-up inventory=production"
-      args:
-        chdir: "/home/app_user/project"
+        chdir: "{{ PRODUCTION_SERVER_PATH }}/project/app"
     - name: 'Create theme/assets folder'
       file:
-        path: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
+        path: "{{ PRODUCTION_SERVER_PATH }}/project/app/themes/{{THEME_NAME}}/assets"
         state: directory
     - name: 'Copy files'
       copy:
         src: "./../../../app/themes/{{THEME_NAME}}/assets/{{ item }}"
-        dest: "/home/app_user/project/app/themes/{{THEME_NAME}}/assets"
+        dest: "{{ PRODUCTION_SERVER_PATH }}/project/app/themes/{{THEME_NAME}}/assets"
       with_items:
         - css
         - js
         - mix-manifest.json
-    - name: 'Apply chown command'
-      file:
-        path: '/home/app_user/project'
-        owner: app_user
-        group: app_user
-        recurse: yes
-      become: true
-      become_user: root
