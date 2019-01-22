@@ -346,35 +346,42 @@ Features:
 
 Connect to production server. Starts docker machines.
 ```bash
-make production-up [prefix=master]
+make production-up
 ```
 
 ### production-pull
 
 Connect to production server and update project.
 ```bash
-make production-pull [version=master]
+make production-pull
+```
+
+### production-simple-pull
+
+Connect to production server and update project.
+```bash
+make production-simple-pull
 ```
 
 ### production-restart
 
 Connect to production server. Restarts docker machines.
 ```bash
-make production-restart [prefix=master]
+make production-restart
 ```
 
 ### production-stop
 
 Stops docker machines on production server.
 ```bash
-make production-stop [prefix=master]
+make production-stop
 ```
 
 ### production-rebuild
 
 Rebuild and restart docker machines on production server.
 ```bash
-make production-rebuild [prefix=master]
+make production-rebuild
 ```
 
 ### production-import-mysql-db
@@ -384,7 +391,7 @@ make production-rebuild [prefix=master]
   * Get dump db.sql file from temp/db.zip archive.
   * Import mysql dump file.
 ```bash
-make production-import-mysql-db [prefix=master] [src=bitbucket]
+make production-import-mysql-db [src=bitbucket]
 ```
 
 ### production-export-mysql-db
@@ -394,7 +401,7 @@ make production-import-mysql-db [prefix=master] [src=bitbucket]
   * Create temp/db.zip archive with db.sql file.
   * Upload db.zip archive to bitbucket.
 ```bash
-make production-export-mysql-db [prefix=master] [src=bitbucket]
+make production-export-mysql-db [src=bitbucket]
 ```
 
 ### production-import-content
@@ -404,7 +411,7 @@ make production-export-mysql-db [prefix=master] [src=bitbucket]
   * Get content files from temp/content.zip archive.
   * Copy content folders: meta, content.
 ```bash
-make production-import-content [prefix=master] [src=bitbucket]
+make production-import-content [src=bitbucket]
 ```
 
 ### production-export-content
@@ -414,7 +421,7 @@ make production-import-content [prefix=master] [src=bitbucket]
   * Create temp/content.zip archive with content files.
   * Upload content.zip archive to bitbucket.
 ```bash
-make production-export-content [prefix=master] [src=bitbucket]
+make production-export-content [src=bitbucket]
 ```
 
 ### production-import-images
@@ -424,7 +431,7 @@ make production-export-content [prefix=master] [src=bitbucket]
   * Get images files from temp/images.zip archive.
   * Copy images folders: upload, media.
 ```bash
-make production-import-images [prefix=master] [src=bitbucket]
+make production-import-images [src=bitbucket]
 ```
 
 ### production-export-images
@@ -434,7 +441,7 @@ make production-import-images [prefix=master] [src=bitbucket]
   * Create temp/images.zip archive with images files.
   * Upload images.zip archive to bitbucket.
 ```bash
-make production-export-images [prefix=master] [src=bitbucket]
+make production-export-images [src=bitbucket]
 ```
 
 ### production-import-full
