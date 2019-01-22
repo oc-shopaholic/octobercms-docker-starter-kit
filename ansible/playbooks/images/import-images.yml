@@ -1,3 +1,9 @@
+- name: 'Download images files from staging'
+  when: DUMP_SRC == 'staging'
+  import_playbook: download-images-from-staging.yml
+- name: 'Download images files from production'
+  when: DUMP_SRC == 'production'
+  import_playbook: download-images-from-production.yml
 - name: 'Import images files to app'
   hosts: localhost
   tasks:

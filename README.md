@@ -59,6 +59,13 @@ You need **reboot** system, after running the command.
 
 # Available commands (local environment)
 
+### local-first-start
+
+Starts docker machines. Run import-full command.
+```bash
+make local-first-start [src=bitbucket|staging|production]
+```
+
 ### local-up
 
 Starts docker machines.
@@ -130,7 +137,7 @@ make local-sphinx-rotate-all
   * Get dump db.sql file from temp/db.zip archive.
   * Import mysql dump file.
 ```bash
-make import-mysql-db [src=bitbucket]
+make import-mysql-db [src=bitbucket|staging|production]
 ```
 
 ### export-mysql-db
@@ -150,7 +157,7 @@ make export-mysql-db [src=bitbucket]
   * Get content files from temp/content.zip archive.
   * Copy content folders: meta, content.
 ```bash
-make import-content [src=bitbucket]
+make import-content [src=bitbucket|staging|production]
 ```
 
 ### export-content
@@ -170,7 +177,7 @@ make export-content [src=bitbucket]
   * Get images files from temp/images.zip archive.
   * Copy images folders: upload, media.
 ```bash
-make import-images [src=bitbucket]
+make import-images [src=bitbucket|staging|production]
 ```
 
 ### export-images
@@ -188,14 +195,14 @@ make export-images [src=bitbucket]
 
 Starts import mysql database, content files, images.
 ```bash
-make import-full
+make import-full [src=bitbucket|staging|production]
 ```
 
 ### export-full
 
 Starts export mysql database, content files, images.
 ```bash
-make export-full
+make export-full [src=bitbucket]
 ```
 
 # Available commands (staging environment)
@@ -217,6 +224,13 @@ make staging-create [prefix=staging]
 Configure server default setup.
 ```bash
 make staging-provisioning [prefix=staging]
+```
+
+### staging-first-start
+
+Connect to staging server. Starts docker machines. Run import-full command.
+```bash
+make staging-first-start [prefix=staging] [version=master] [src=bitbucket|production]
 ```
 
 ### staging-up
@@ -261,7 +275,7 @@ make staging-rebuild [prefix=master]
   * Get dump db.sql file from temp/db.zip archive.
   * Import mysql dump file.
 ```bash
-make staging-import-mysql-db [prefix=master] [src=bitbucket]
+make staging-import-mysql-db [prefix=master] [src=bitbucket|staging|production]
 ```
 
 ### staging-export-mysql-db
@@ -281,7 +295,7 @@ make staging-export-mysql-db [prefix=master] [src=bitbucket]
   * Get content files from temp/content.zip archive.
   * Copy content folders: meta, content.
 ```bash
-make staging-import-content [prefix=master] [src=bitbucket]
+make staging-import-content [prefix=master] [src=bitbucket|staging|production]
 ```
 
 ### staging-export-content
@@ -301,7 +315,7 @@ make staging-export-content [prefix=master] [src=bitbucket]
   * Get images files from temp/images.zip archive.
   * Copy images folders: upload, media.
 ```bash
-make staging-import-images [prefix=master] [src=bitbucket]
+make staging-import-images [prefix=master] [src=bitbucket|staging|production]
 ```
 
 ### staging-export-images
@@ -318,14 +332,14 @@ make staging-export-images [prefix=master] [src=bitbucket]
 
 Starts import mysql database, content files, images.
 ```bash
-make staging-import-full
+make staging-import-full [src=bitbucket|staging|production]
 ```
 
 ### staging-export-full
 
 Starts export mysql database, content files, images.
 ```bash
-make staging-export-full
+make staging-export-full [src=bitbucket]
 ```
 
 ### staging-sphinx-rotate-all
@@ -448,14 +462,14 @@ make production-export-images [src=bitbucket]
 
 Starts import mysql database, content files, images.
 ```bash
-make production-import-full
+make production-import-full [src=bitbucket]
 ```
 
 ### production-export-full
 
 Starts export mysql database, content files, images.
 ```bash
-make production-export-full
+make production-export-full [src=bitbucket]
 ```
 
 ### production-sphinx-rotate-all
