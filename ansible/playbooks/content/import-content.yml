@@ -1,3 +1,9 @@
+- name: 'Download content files from staging'
+  when: DUMP_SRC == 'staging'
+  import_playbook: download-content-from-staging.yml
+- name: 'Download content files from production'
+  when: DUMP_SRC == 'production'
+  import_playbook: download-content-from-production.yml
 - name: 'Import content files to app'
   hosts: localhost
   tasks:
