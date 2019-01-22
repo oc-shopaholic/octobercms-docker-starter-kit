@@ -148,6 +148,9 @@ production-rebuild :
 production-pull :
 	docker-compose up -d workspace
 	ansible-playbook --vault-id password ansible/playbooks/production/pull.yml -i ansible/production-hosts.yml --extra-vars "GIT_VERSION=$(version)"
+production-simple-pull :
+	docker-compose up -d workspace
+	ansible-playbook --vault-id password ansible/playbooks/production/simple-pull.yml -i ansible/production-hosts.yml --extra-vars "GIT_VERSION=$(version)"
 production-import-mysql-db :
 	ansible-playbook --vault-id password ansible/playbooks/production/import-mysql-db.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 production-export-mysql-db :
