@@ -1,9 +1,9 @@
 - name: 'Download dump files from staging'
   when: DUMP_SRC == 'staging'
-  import_playbook: download-images-dump-staging.yml
+  import_playbook: download-dump-from-staging.yml
 - name: 'Download dump files from production'
   when: DUMP_SRC == 'production'
-  import_playbook: download-images-dump-production.yml
+  import_playbook: download-dump-from-production.yml
 - name: 'Import dump file to local db'
   hosts: localhost
   tasks:
