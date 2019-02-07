@@ -1,4 +1,5 @@
 Features:
+
   * Based on [laradock](https://laradock.io/).
   * Make commands based on ansible playbooks.
   * Allows you to store configuration files for local/staging/production environments in the repository.
@@ -482,6 +483,7 @@ make production-sphinx-rotate-all
 # Project initialisation
 
 Steps of quick start of new project:
+
   * You need to change *.yml files with vars in folder **ansible/vars**.
   * You need to check and change template files in folder **ansible/templates**.
   * You need to change workspace host name in **ansible/*-hosts.yml** and playbooks (For example: from **laradockoctober_workspace_1** to **laradockmyproject_workspace_1**).
