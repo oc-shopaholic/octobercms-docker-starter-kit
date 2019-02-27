@@ -88,12 +88,11 @@ services:
           - INSTALL_SUBVERSION=${WORKSPACE_INSTALL_SUBVERSION}
           - INSTALL_XDEBUG=${WORKSPACE_INSTALL_XDEBUG}
           - INSTALL_PHPDBG=${WORKSPACE_INSTALL_PHPDBG}
-{% if ENABLE_BLACKFIRE %}
           - INSTALL_BLACKFIRE=${INSTALL_BLACKFIRE}
-{% endif %}
           - INSTALL_SSH2=${WORKSPACE_INSTALL_SSH2}
           - INSTALL_GMP=${WORKSPACE_INSTALL_GMP}
           - INSTALL_SOAP=${WORKSPACE_INSTALL_SOAP}
+          - INSTALL_XSL=${WORKSPACE_INSTALL_XSL}
           - INSTALL_LDAP=${WORKSPACE_INSTALL_LDAP}
           - INSTALL_IMAP=${WORKSPACE_INSTALL_IMAP}
           - INSTALL_MONGO=${WORKSPACE_INSTALL_MONGO}
@@ -106,12 +105,11 @@ services:
           - INSTALL_NPM_GULP=${WORKSPACE_INSTALL_NPM_GULP}
           - INSTALL_NPM_BOWER=${WORKSPACE_INSTALL_NPM_BOWER}
           - INSTALL_NPM_VUE_CLI=${WORKSPACE_INSTALL_NPM_VUE_CLI}
+          - INSTALL_NPM_ANGULAR_CLI=${WORKSPACE_INSTALL_NPM_ANGULAR_CLI}
           - INSTALL_DRUSH=${WORKSPACE_INSTALL_DRUSH}
+          - INSTALL_WP_CLI=${WORKSPACE_INSTALL_WP_CLI}
           - INSTALL_DRUPAL_CONSOLE=${WORKSPACE_INSTALL_DRUPAL_CONSOLE}
           - INSTALL_AEROSPIKE=${WORKSPACE_INSTALL_AEROSPIKE}
-{% if ENABLE_AEROSPIKE %}
-          - AEROSPIKE_PHP_REPOSITORY=${AEROSPIKE_PHP_REPOSITORY}
-{% endif %}
           - INSTALL_V8JS=${WORKSPACE_INSTALL_V8JS}
           - COMPOSER_GLOBAL_INSTALL=${WORKSPACE_COMPOSER_GLOBAL_INSTALL}
           - COMPOSER_REPO_PACKAGIST=${WORKSPACE_COMPOSER_REPO_PACKAGIST}
@@ -141,12 +139,10 @@ services:
           - YARN_VERSION=${WORKSPACE_YARN_VERSION}
           - DRUSH_VERSION=${WORKSPACE_DRUSH_VERSION}
           - TZ=${WORKSPACE_TIMEZONE}
-{% if ENABLE_BLACKFIRE %}
           - BLACKFIRE_CLIENT_ID=${BLACKFIRE_CLIENT_ID}
           - BLACKFIRE_CLIENT_TOKEN=${BLACKFIRE_CLIENT_TOKEN}
-{% endif %}
       volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ./temp:/home/laradock/temp
       extra_hosts:
         - "dockerhost:${DOCKER_HOST_IP}"
@@ -171,16 +167,14 @@ services:
           - LARADOCK_PHALCON_VERSION=${PHALCON_VERSION}
           - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
           - INSTALL_PHPDBG=${PHP_FPM_INSTALL_PHPDBG}
-{% if ENABLE_BLACKFIRE %}
           - INSTALL_BLACKFIRE=${INSTALL_BLACKFIRE}
-{% endif %}
           - INSTALL_SSH2=${PHP_FPM_INSTALL_SSH2}
           - INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}
+          - INSTALL_XSL=${PHP_FPM_INSTALL_XSL}
           - INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP}
           - INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}
           - INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP}
           - INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL}
-          - INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE}
           - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
           - INSTALL_GMP=${PHP_FPM_INSTALL_GMP}
           - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
@@ -188,9 +182,6 @@ services:
           - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
           - INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF}
           - INSTALL_AEROSPIKE=${PHP_FPM_INSTALL_AEROSPIKE}
-{% if ENABLE_AEROSPIKE %}
-          - AEROSPIKE_PHP_REPOSITORY=${AEROSPIKE_PHP_REPOSITORY}
-{% endif %}
           - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
           - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
           - INSTALL_PG_CLIENT=${PHP_FPM_INSTALL_PG_CLIENT}
@@ -206,11 +197,14 @@ services:
           - INSTALL_IONCUBE=${PHP_FPM_INSTALL_IONCUBE}
           - INSTALL_APCU=${PHP_FPM_INSTALL_APCU}
           - INSTALL_YAML=${PHP_FPM_INSTALL_YAML}
+          - INSTALL_ADDITIONAL_LOCALES=${PHP_FPM_INSTALL_ADDITIONAL_LOCALES}
+          - INSTALL_MYSQL_CLIENT=${PHP_FPM_INSTALL_MYSQL_CLIENT}
+          - ADDITIONAL_LOCALES=${PHP_FPM_ADDITIONAL_LOCALES}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
       volumes:
         - ./services/php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       expose:
         - "9000"
       extra_hosts:
@@ -239,10 +233,12 @@ services:
           - INSTALL_PHALCON=${PHP_WORKER_INSTALL_PHALCON}
           - INSTALL_SOAP=${PHP_WORKER_INSTALL_SOAP}
           - INSTALL_ZIP_ARCHIVE=${PHP_WORKER_INSTALL_ZIP_ARCHIVE}
+          - INSTALL_MYSQL_CLIENT=${PHP_WORKER_INSTALL_MYSQL_CLIENT}
+          - INSTALL_AMQP=${PHP_WORKER_INSTALL_AMQP}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
       volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ./services/php-worker/supervisord.d:/etc/supervisord.d
       depends_on:
         - workspace
@@ -285,7 +281,7 @@ services:
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
       volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
         - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
         - ${NGINX_SSL_PATH}:/etc/nginx/ssl
@@ -323,7 +319,7 @@ services:
           - PHP_UPSTREAM_TIMEOUT=${APACHE_PHP_UPSTREAM_TIMEOUT}
           - DOCUMENT_ROOT=${APACHE_DOCUMENT_ROOT}
       volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ${APACHE_HOST_LOG_PATH}:/var/log/apache2
         - ${APACHE_SITES_PATH}:/etc/apache2/sites-available
       ports:
@@ -341,7 +337,7 @@ services:
     hhvm:
       build: ./services/hhvm
       volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       args:
         - PUID=${WORKSPACE_PUID}
         - PGID=${WORKSPACE_PGID}
@@ -458,6 +454,14 @@ services:
         - POSTGRES_DB=${POSTGRES_DB}
         - POSTGRES_USER=${POSTGRES_USER}
         - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - GITLAB_POSTGRES_INIT=${GITLAB_POSTGRES_INIT}
+        - GITLAB_POSTGRES_USER=${GITLAB_POSTGRES_USER}
+        - GITLAB_POSTGRES_PASSWORD=${GITLAB_POSTGRES_PASSWORD}
+        - GITLAB_POSTGRES_DB=${GITLAB_POSTGRES_DB}
+        - JUPYTERHUB_POSTGRES_INIT=${JUPYTERHUB_POSTGRES_INIT}
+        - JUPYTERHUB_POSTGRES_USER=${JUPYTERHUB_POSTGRES_USER}
+        - JUPYTERHUB_POSTGRES_PASSWORD=${JUPYTERHUB_POSTGRES_PASSWORD}
+        - JUPYTERHUB_POSTGRES_DB=${JUPYTERHUB_POSTGRES_DB}
       networks:
         - backend
 
@@ -523,6 +527,16 @@ services:
         - ${DATA_PATH_HOST}/redis:/data
       ports:
         - "${REDIS_PORT}:6379"
+      networks:
+        - backend
+{% endif %}
+{% if ENABLE_REDIS_CLUSTER %}
+
+### Redis Cluster ##########################################
+    redis-cluster:
+      build: ./services/redis-cluster
+      ports:
+        - "${REDIS_CLUSTER_PORT_RANGE}:7000-7005"
       networks:
         - backend
 {% endif %}
@@ -595,6 +609,9 @@ services:
       environment:
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
         - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      hostname: laradock-rabbitmq
+      volumes:
+        - ${DATA_PATH_HOST}/rabbitmq:/var/lib/rabbitmq
       depends_on:
         - php-fpm
       networks:
@@ -618,7 +635,7 @@ services:
     caddy:
       build: ./services/caddy
       volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ${CADDY_CONFIG_PATH}:/etc/caddy
         - ${CADDY_HOST_LOG_PATH}:/var/log/caddy
         - ${DATA_PATH_HOST}:/root/.caddy
@@ -643,8 +660,8 @@ services:
         - MYSQL_ROOT_PASSWORD=${PMA_ROOT_PASSWORD}
       ports:
         - "${PMA_PORT}:80"
-#      depends_on:
-#        - "${PMA_DB_ENGINE}"
+      depends_on:
+        - "${PMA_DB_ENGINE}"
       networks:
         - frontend
         - backend
@@ -703,6 +720,26 @@ services:
       networks:
         - frontend
         - backend
+{% endif %}
+{% if ENABLE_LOGSTASH %}
+
+### Logstash ##############################################
+    logstash:
+      build: ./logstash
+      volumes:
+        - './logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml'
+        - './logstash/pipeline:/usr/share/logstash/pipeline'
+      ports:
+        - '5001:5001'
+      environment:
+        LS_JAVA_OPTS: '-Xmx1g -Xms1g'
+      env_file:
+        - .env
+      networks:
+        - frontend
+        - backend
+      depends_on:
+        - elasticsearch
 {% endif %}
 {% if ENABLE_KIBANA %}
 
@@ -1010,7 +1047,7 @@ services:
       build:
         context: ./services/aws
       volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       depends_on:
         - workspace
       tty: true
@@ -1043,14 +1080,15 @@ services:
           redis['enable'] = false
           nginx['listen_https'] = false
           nginx['listen_port'] = 80
+          nginx['custom_gitlab_server_config'] = "set_real_ip_from 172.0.0.0/8;\nreal_ip_header X-Real-IP;\nreal_ip_recursive on;"
           postgresql['enable'] = false
           gitlab_rails['trusted_proxies'] = ['caddy','nginx','apache2']
           gitlab_rails['redis_host'] = 'redis'
           gitlab_rails['redis_database'] = 8
-          gitlab_rails['db_host'] = 'postgres'
-          gitlab_rails['db_username'] = 'laradock_gitlab'
-          gitlab_rails['db_password'] = 'laradock_gitlab'
-          gitlab_rails['db_database'] = 'laradock_gitlab'
+          gitlab_rails['db_host'] = '${GITLAB_POSTGRES_HOST}'
+          gitlab_rails['db_username'] = '${GITLAB_POSTGRES_USER}'
+          gitlab_rails['db_password'] = '${GITLAB_POSTGRES_PASSWORD}'
+          gitlab_rails['db_database'] = '${GITLAB_POSTGRES_DB}'
           gitlab_rails['initial_root_password'] = '${GITLAB_ROOT_PASSWORD}'
           gitlab_rails['gitlab_shell_ssh_port'] = ${GITLAB_HOST_SSH_PORT}
       volumes:
@@ -1069,11 +1107,14 @@ services:
     gitlab-runner:
       image: gitlab/gitlab-runner:latest
       environment:
-        - CI_SERVER_URL=${GITLAB_DOMAIN_NAME}
+        - CI_SERVER_URL=${GITLAB_CI_SERVER_URL}
+        - REGISTRATION_TOKEN=${GITLAB_RUNNER_REGISTRATION_TOKEN}
+        - RUNNER_NAME=${COMPOSE_PROJECT_NAME}-runner
+        - REGISTER_NON_INTERACTIVE=${GITLAB_REGISTER_NON_INTERACTIVE}
+        - RUNNER_EXECUTOR=shell
       volumes:
         - ${DATA_PATH_HOST}/gitlab/runner:/etc/gitlab-runner
         - /var/run/docker.sock:/var/run/docker.sock:rw
-      restart: always
 {% endif %}
 {% if ENABLE_JUPYTERHUB %}
 
@@ -1084,7 +1125,6 @@ services:
       depends_on:
         - postgres
         - jupyterhub-user
-      restart: always
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock:rw
         - ${DATA_PATH_HOST}/jupyterhub/:/data
@@ -1105,7 +1145,8 @@ services:
         - JUPYTERHUB_OAUTH_CALLBACK_URL=${JUPYTERHUB_OAUTH_CALLBACK_URL}
         - JUPYTERHUB_OAUTH_CLIENT_ID=${JUPYTERHUB_OAUTH_CLIENT_ID}
         - JUPYTERHUB_OAUTH_CLIENT_SECRET=${JUPYTERHUB_OAUTH_CLIENT_SECRET}
-        - JUPYTERHUB_LOCAL_NOTEBOOK_IMAGE=${JUPYTERHUB_LOCAL_NOTEBOOK_IMAGE}
+        - JUPYTERHUB_LOCAL_NOTEBOOK_IMAGE=${COMPOSE_PROJECT_NAME}_jupyterhub-user
+        - JUPYTERHUB_ENABLE_NVIDIA=${JUPYTERHUB_ENABLE_NVIDIA}
     jupyterhub-user:
       build:
         context: ./jupyterhub
@@ -1159,11 +1200,12 @@ services:
       networks:
         - backend
 {% endif%}
-{% if ENABLE_PHPREDISADMIN %}
+{% if ENABLE_REDISWEBUI %}
 
-### PHPRedisAdmin ################################################
-    phpredisadmin:
-      image: erikdubbelboer/phpredisadmin:latest
+### REDISWEBUI ################################################
+    redis-webui:
+      build:
+        context: ./redis-webui
       environment:
         - ADMIN_USER=${REDIS_WEBUI_USERNAME}
         - ADMIN_PASS=${REDIS_WEBUI_PASSWORD}
@@ -1182,7 +1224,6 @@ services:
     mongo-webui:
       build:
         context: ./services/mongo-webui
-      restart: always
       environment:
         - ROOT_URL=${MONGO_WEBUI_ROOT_URL}
         - MONGO_URL=${MONGO_WEBUI_MONGO_URL}
@@ -1472,6 +1513,26 @@ services:
           aliases:
             - fetchmail
 {% endif %}
+{% if ENABLE_TRAEFIK %}
+
+### TRAEFIK #########################################
+    traefik:
+      build:
+        context: ./traefik
+      command: --docker
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      ports:
+        - "${TRAEFIK_HOST_HTTP_PORT}:80"
+        - "${TRAEFIK_HOST_HTTPS_PORT}:443"
+      networks:
+        - frontend
+        - backend
+      labels:
+        - traefik.backend=traefik
+        - traefik.frontend.rule=Host:monitor.localhost
+        - traefik.port=8080
+{% endif %}
 {% if ENABLE_MOSQUITTO %}
 
 ### MOSQUITTO Broker #########################################
@@ -1484,5 +1545,18 @@ services:
         - "${MOSQUITTO_PORT}:9001"
       networks:
         - frontend
+        - backend
+{% endif %}
+{% if ENABLE_COUCHDB %}
+
+### COUCHDB ###################################################
+    couchdb:
+      build:
+        context: ./couchdb
+      volumes:
+        - ${DATA_PATH_HOST}/couchdb/data:/opt/couchdb/data
+      ports:
+        - "${COUCHDB_PORT}:5984"
+      networks:
         - backend
 {% endif %}

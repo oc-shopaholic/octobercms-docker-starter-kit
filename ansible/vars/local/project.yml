@@ -8,8 +8,9 @@ ENABLE_LARAVEL_ECHO: false
 
 ### Enable cache driver
 ENABLE_REDIS: false
+ENABLE_REDIS_CLUSTER: false
 ENABLE_MEMCACHED: false
-ENABLE_PHPREDISADMIN: false
+ENABLE_REDISWEBUI: false
 
 ### Enable queue worker ##############################################
 ENABLE_PHP_WORKER: false
@@ -55,6 +56,7 @@ ENABLE_CERTBOT: false
 ENABLE_AEROSPIKE: false
 ENABLE_HAPROXY: false
 ENABLE_ELASTICSEARCH: false
+ENABLE_LOGSTASH: false
 ENABLE_KIBANA: false
 ENABLE_MINIO: false
 ENABLE_JENKINS: false
@@ -69,3 +71,5 @@ ENABLE_AWS: false
 ENABLE_NEO4J: false
 ENABLE_MOSQUITTO: false
 ENABLE_ZOOKEEPER: false
+ENABLE_TRAEFIK: false
+ENABLE_COUCHDB: false
