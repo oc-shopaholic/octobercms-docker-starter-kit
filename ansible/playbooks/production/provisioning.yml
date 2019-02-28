@@ -94,3 +94,11 @@
         dest: "/home/app_user/project"
         version: "{{ GIT_VERSION }}"
         force: yes
+    - name: 'Apply chown command'
+      file:
+        path: '/home/app_user/project'
+        owner: app_user
+        group: app_user
+        recurse: yes
+      become: true
+      become_user: root
