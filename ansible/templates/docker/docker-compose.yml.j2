@@ -145,6 +145,7 @@ services:
           - BLACKFIRE_CLIENT_ID=${BLACKFIRE_CLIENT_ID}
           - BLACKFIRE_CLIENT_TOKEN=${BLACKFIRE_CLIENT_TOKEN}
 {% endif %}
+          - INSTALL_POWERLINE=${WORKSPACE_INSTALL_POWERLINE}
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ./temp:/home/laradock/temp
@@ -241,6 +242,8 @@ services:
           - INSTALL_ZIP_ARCHIVE=${PHP_WORKER_INSTALL_ZIP_ARCHIVE}
           - INSTALL_MYSQL_CLIENT=${PHP_WORKER_INSTALL_MYSQL_CLIENT}
           - INSTALL_AMQP=${PHP_WORKER_INSTALL_AMQP}
+          - INSTALL_GHOSTSCRIPT=${PHP_WORKER_INSTALL_GHOSTSCRIPT}
+          - INSTALL_SWOOLE=${PHP_WORKER_INSTALL_SWOOLE}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
       volumes:
@@ -692,11 +695,15 @@ services:
 
 ### pgAdmin ##############################################
     pgadmin:
-      build: ./services/pgadmin
+      container_name: pgadmin
+      image: dpage/pgadmin4:latest
+      environment:
+        - "PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}"
+        - "PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}"
       ports:
-        - "5050:5050"
+        - "${PGADMIN_PORT}:80"
       volumes:
-        - ${DATA_PATH_HOST}/pgadmin-backup:/var/lib/pgadmin/storage/pgadmin4
+        - ${DATA_PATH_HOST}/pgadmin:/var/lib/pgadmin
       depends_on:
         - postgres
       networks:
@@ -1563,6 +1570,23 @@ services:
         - ${DATA_PATH_HOST}/couchdb/data:/opt/couchdb/data
       ports:
         - "${COUCHDB_PORT}:5984"
+      networks:
+        - backend
+{% endif %}
+{% if ENABLE_MANTICORE %}
+
+### Manticore Search ###########################################
+    manticore:
+      build:
+        context: ./manticore
+      volumes:
+        - ${MANTICORE_CONFIG_PATH}:/etc/sphinxsearch
+        - ${DATA_PATH_HOST}/manticore/data:/var/lib/manticore/data
+        - ${DATA_PATH_HOST}/manticore/log:/var/lib/manticore/log
+      ports:
+        - "${MANTICORE_API_PORT}:9312"
+        - "${MANTICORE_SPHINXQL_PORT}:9306"
+        - "${MANTICORE_HTTP_PORT}:9308"
       networks:
         - backend
 {% endif %}
