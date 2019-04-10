@@ -58,6 +58,7 @@
         dest: "./../../../app/{{item}}"
         force: true
       with_items:
+        - .stylelintrc
         - package.json
         - webpack.mix.js
     - name: 'Remove temp folder'
