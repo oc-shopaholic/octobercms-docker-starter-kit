@@ -142,13 +142,17 @@ RUN if [ ${INSTALL_PGSQL} = true ]; then \
 ###########################################################################
 
 ARG INSTALL_PG_CLIENT=false
+ARG INSTALL_POSTGIS=false
 
 RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
     # Create folders if not exists (https://github.com/tianon/docker-brew-debian/issues/65)
     mkdir -p /usr/share/man/man1 && \
     mkdir -p /usr/share/man/man7 && \
     # Install the pgsql client
-    apt-get install -y postgresql-client \
+    apt-get install -y postgresql-client && \
+    if [ ${INSTALL_POSTGIS} = true ]; then \
+      apt-get install -y postgis; \
+    fi \
 ;fi
 
 ###########################################################################
@@ -248,6 +252,34 @@ RUN if [ ${INSTALL_MONGO} = true ]; then \
     pecl install mongodb && \
     docker-php-ext-enable mongodb \
 ;fi
+
+###########################################################################
+# Xhprof:
+###########################################################################
+
+ARG INSTALL_XHPROF=false
+
+RUN if [ ${INSTALL_XHPROF} = true ]; then \
+    # Install the php xhprof extension
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = 7 ]; then \
+      curl -L -o /tmp/xhprof.tar.gz "https://github.com/tideways/php-xhprof-extension/archive/v4.1.6.tar.gz"; \
+    else \
+      curl -L -o /tmp/xhprof.tar.gz "https://codeload.github.com/phacility/xhprof/tar.gz/master"; \
+    fi \
+    && mkdir -p xhprof \
+    && tar -C xhprof -zxvf /tmp/xhprof.tar.gz --strip 1 \
+    && ( \
+        cd xhprof \
+        && phpize \
+        && ./configure \
+        && make \
+        && make install \
+    ) \
+    && rm -r xhprof \
+    && rm /tmp/xhprof.tar.gz \
+;fi
+
+COPY ./xhprof.ini /usr/local/etc/php/conf.d
 
 ###########################################################################
 # AMQP:
@@ -613,6 +645,18 @@ RUN if [ ${INSTALL_YAML} = true ]; then \
 ;fi
 
 ###########################################################################
+# RDKAFKA:
+###########################################################################
+
+ARG INSTALL_RDKAFKA=false
+
+RUN if [ ${INSTALL_RDKAFKA} = true ]; then \
+    apt-get install -y librdkafka-dev && \
+    pecl install rdkafka && \
+    docker-php-ext-enable rdkafka \
+;fi
+
+###########################################################################
 # Install additional locales:
 ###########################################################################
 
@@ -639,6 +683,19 @@ ARG INSTALL_MYSQL_CLIENT=false
 RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
     apt-get update -yqq && \
     apt-get -y install mysql-client \
+;fi
+
+###########################################################################
+# FFMPEG:
+###########################################################################
+
+USER root
+
+ARG INSTALL_FFMPEG=false
+
+RUN if [ ${INSTALL_FFMPEG} = true ]; then \
+    apt-get update -yqq && \
+    apt-get -y install ffmpeg \
 ;fi
 
 ###########################################################################

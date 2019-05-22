@@ -118,6 +118,9 @@ USER root
 # Add the composer.json
 COPY ./composer.json /home/laradock/.composer/composer.json
 
+# Add the auth.json for magento 2 credentials
+COPY ./auth.json /home/laradock/.composer/auth.json
+
 # Make sure that ~/.composer belongs to laradock
 RUN chown -R laradock:laradock /home/laradock/.composer
 
@@ -130,6 +133,15 @@ ENV COMPOSER_GLOBAL_INSTALL ${COMPOSER_GLOBAL_INSTALL}
 RUN if [ ${COMPOSER_GLOBAL_INSTALL} = true ]; then \
     # run the install
     composer global install \
+;fi
+
+# Check if auth file is disabled
+ARG COMPOSER_AUTH=false
+ENV COMPOSER_AUTH ${COMPOSER_AUTH}
+
+RUN if [ ${COMPOSER_AUTH} = false ]; then \
+    # remove the file
+    rm /home/laradock/.composer/auth.json \
 ;fi
 
 ARG COMPOSER_REPO_PACKAGIST
@@ -333,7 +345,7 @@ ARG BLACKFIRE_CLIENT_TOKEN
 ENV BLACKFIRE_CLIENT_TOKEN ${BLACKFIRE_CLIENT_TOKEN}
 
 RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
-    curl -L https://packagecloud.io/gpg.key | apt-key add - && \
+    curl -L https://packages.blackfire.io/gpg.key | apt-key add - && \
     echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list && \
     apt-get update -yqq && \
     apt-get install blackfire-agent \
@@ -977,6 +989,31 @@ RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
     apt-get update -yqq && \
     apt-get -y install mysql-client \
 ;fi
+
+###########################################################################
+# FFMpeg:
+###########################################################################
+
+USER root
+
+ARG INSTALL_FFMPEG=false
+
+RUN if [ ${INSTALL_FFMPEG} = true ]; then \
+  apt-get -y install ffmpeg \
+;fi
+
+###########################################################################
+# GNU Parallel:
+###########################################################################
+
+USER root
+
+ARG INSTALL_GNU_PARALLEL=false
+
+RUN if [ ${INSTALL_GNU_PARALLEL} = true ]; then \
+  apt-get -y install parallel \
+;fi
+
 
 ###########################################################################
 # Check PHP version:
