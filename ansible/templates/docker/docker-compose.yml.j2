@@ -136,9 +136,12 @@ services:
           - INSTALL_PG_CLIENT=${WORKSPACE_INSTALL_PG_CLIENT}
           - INSTALL_PHALCON=${WORKSPACE_INSTALL_PHALCON}
           - INSTALL_SWOOLE=${WORKSPACE_INSTALL_SWOOLE}
+          - INSTALL_TAINT=${WORKSPACE_INSTALL_TAINT}
           - INSTALL_LIBPNG=${WORKSPACE_INSTALL_LIBPNG}
           - INSTALL_IONCUBE=${WORKSPACE_INSTALL_IONCUBE}
           - INSTALL_MYSQL_CLIENT=${WORKSPACE_INSTALL_MYSQL_CLIENT}
+          - INSTALL_PING=${WORKSPACE_INSTALL_PING}
+          - INSTALL_SSHPASS=${WORKSPACE_INSTALL_SSHPASS}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
           - CHROME_DRIVER_VERSION=${WORKSPACE_CHROME_DRIVER_VERSION}
@@ -153,6 +156,9 @@ services:
           - INSTALL_POWERLINE=${WORKSPACE_INSTALL_POWERLINE}
           - INSTALL_FFMPEG=${WORKSPACE_INSTALL_FFMPEG}
           - INSTALL_GNU_PARALLEL=${WORKSPACE_INSTALL_GNU_PARALLEL}
+          - http_proxy
+          - https_proxy
+          - no_proxy
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ./temp:/home/laradock/temp
@@ -205,6 +211,7 @@ services:
           - INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP}
           - INSTALL_PHALCON=${PHP_FPM_INSTALL_PHALCON}
           - INSTALL_SWOOLE=${PHP_FPM_INSTALL_SWOOLE}
+          - INSTALL_TAINT=${PHP_FPM_INSTALL_TAINT}
           - INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS}
           - INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK}
           - INSTALL_CALENDAR=${PHP_FPM_INSTALL_CALENDAR}
@@ -215,10 +222,15 @@ services:
           - INSTALL_RDKAFKA=${PHP_FPM_INSTALL_RDKAFKA}
           - INSTALL_ADDITIONAL_LOCALES=${PHP_FPM_INSTALL_ADDITIONAL_LOCALES}
           - INSTALL_MYSQL_CLIENT=${PHP_FPM_INSTALL_MYSQL_CLIENT}
+          - INSTALL_PING=${PHP_FPM_INSTALL_PING}
+          - INSTALL_SSHPASS=${PHP_FPM_INSTALL_SSHPASS}
           - ADDITIONAL_LOCALES=${PHP_FPM_ADDITIONAL_LOCALES}
           - INSTALL_FFMPEG=${PHP_FPM_FFMPEG}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
+          - http_proxy
+          - https_proxy
+          - no_proxy
       volumes:
         - ./services/php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
@@ -254,7 +266,9 @@ services:
           - INSTALL_AMQP=${PHP_WORKER_INSTALL_AMQP}
           - INSTALL_GHOSTSCRIPT=${PHP_WORKER_INSTALL_GHOSTSCRIPT}
           - INSTALL_SWOOLE=${PHP_WORKER_INSTALL_SWOOLE}
+          - INSTALL_TAINT=${PHP_WORKER_INSTALL_TAINT}
           - INSTALL_FFMPEG=${PHP_WORKER_INSTALL_FFMPEG}
+          - INSTALL_GMP=${PHP_WORKER_INSTALL_GMP}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
       volumes:
@@ -298,6 +312,9 @@ services:
           - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
           - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
           - CHANGE_SOURCE=${CHANGE_SOURCE}
+          - http_proxy
+          - https_proxy
+          - no_proxy
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
       volumes:
@@ -447,6 +464,10 @@ services:
 ### MariaDB ##############################################
     mariadb:
       build: ./services/mariadb
+        args:
+          - http_proxy
+          - https_proxy
+          - no_proxy
       volumes:
         - ${DATA_PATH_HOST}/mariadb:/var/lib/mysql
         - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
@@ -1348,6 +1369,7 @@ services:
       networks:
         - backend
 {% endif%}
+{% if ansible_os_family != "Darwin" %}
 
 ### DOCKER-REGISTRY ################################################
     docker-registry:
@@ -1360,6 +1382,7 @@ services:
         - "${DOCKER_REGISTRY_PORT}:5000"
       networks:
         - backend
+{% endif %}
 {% if ENABLE_DOCKERWEBUI %}
 
 ### DOCKER-WEB-UI ################################################

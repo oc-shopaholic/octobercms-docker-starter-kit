@@ -1,6 +1,14 @@
 - name: 'Create environment'
   hosts: localhost
   tasks:
+    - name: 'Get user ID'
+      when: ansible_os_family != "Windows"
+      command: id -u
+      register: CUREENT_USER_ID
+    - name: 'Get user group'
+      when: ansible_os_family != "Windows"
+      command: id -g
+      register: CUREENT_GROUP_ID
     # Gather facts
     - name: 'Include global vars'
       include_vars:
