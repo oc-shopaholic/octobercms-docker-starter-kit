@@ -28,23 +28,23 @@
         - "{{ DATABASE_PORT }}:3306"
         networks:
           - name: "{{DOCKER_PREFIX}}_backend"
-- name: 'Connect to docker workspace and apply migrations'
-  hosts: laradockoctober_workspace_1
-  remote_user: laradock
-  tasks:
-    - name: 'Include global vars'
-      include_vars:
-        dir: ./../../vars/global
-    - name: 'Include environment vars'
-      include_vars:
-        dir: ./../../vars/{{ env }}
-    - name: Create script file
-      copy:
-        content: "GRANT ALL ON `{{ DATABASE_NAME }}`.* TO '{{ DATABASE_USER }}'@'%';"
-        dest: "command-script.sql"
-    - name: Run script
-      raw: "/usr/bin/mysql -h{{DOCKER_PREFIX}}_mysql -uroot --password={{DATABASE_ROOT_PASSWORD}} < command-script.sql"
-    - name: Remove script file
-      file:
-        path: "command-script.sql"
-        state: absent
+#- name: 'Connect to docker workspace and apply migrations'
+#  hosts: laradockoctober_workspace_1
+#  remote_user: laradock
+#  tasks:
+#    - name: 'Include global vars'
+#      include_vars:
+#        dir: ./../../vars/global
+#    - name: 'Include environment vars'
+#      include_vars:
+#        dir: ./../../vars/{{ env }}
+#    - name: Create script file
+#      copy:
+#        content: "GRANT ALL ON `{{ DATABASE_NAME }}`.* TO '{{ DATABASE_USER }}'@'%';"
+#        dest: "command-script.sql"
+#    - name: Run script
+#      raw: "/usr/bin/mysql -h{{DOCKER_PREFIX}}_mysql -uroot --password={{DATABASE_ROOT_PASSWORD}} < command-script.sql"
+#    - name: Remove script file
+#      file:
+#        path: "command-script.sql"
+#        state: absent
