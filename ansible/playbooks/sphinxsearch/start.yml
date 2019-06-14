@@ -17,6 +17,7 @@
         restart_policy: "{{ RESTART_POLICY }}"
         volumes:
         - "{{ DATA_PATH_HOST }}/sphinxsearch:/var/lib/sphinx/data"
+        - "./../../../services/sphinxsearch/sphinx.conf:/etc/sphinx/sphinx.conf"
         ports:
         - "9312:9312"
         - "9306:9306"
