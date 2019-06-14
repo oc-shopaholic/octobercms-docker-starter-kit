@@ -10,7 +10,7 @@ RUN apk --update add sphinx \
 	&& mkdir -p /var/log/sphinx \
 	&& mkdir -p /var/run/sphinx
 
-COPY sphinx.conf /etc/sphinx/sphinx.conf
+#COPY sphinx.conf /etc/sphinx/sphinx.conf
 
 COPY ./crontab /etc/crontabs
 
