@@ -75,6 +75,10 @@ volumes:
   mosquitto:
     driver: ${VOLUMES_DRIVER}
 {% endif %}
+{% if ENABLE_CONFLUENCE %}
+  confluence:
+    driver: ${VOLUMES_DRIVER}
+{% endif %}
 {% if ENABLE_SONARQUBE %}
   sonarqube:
     driver: ${VOLUMES_DRIVER}
@@ -292,6 +296,7 @@ services:
           - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
           - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
           - INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED}
+          - INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP}
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
         - ./services/laravel-horizon/supervisord.d:/etc/supervisord.d
@@ -468,12 +473,14 @@ services:
           - http_proxy
           - https_proxy
           - no_proxy
+          - MARIADB_VERSION=${MARIADB_VERSION}
       volumes:
         - ${DATA_PATH_HOST}/mariadb:/var/lib/mysql
         - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
       ports:
         - "${MARIADB_PORT}:3306"
       environment:
+        - TZ=${WORKSPACE_TIMEZONE}
         - MYSQL_DATABASE=${MARIADB_DATABASE}
         - MYSQL_USER=${MARIADB_USER}
         - MYSQL_PASSWORD=${MARIADB_PASSWORD}
@@ -507,6 +514,10 @@ services:
         - SONARQUBE_POSTGRES_DB=${SONARQUBE_POSTGRES_DB}
         - SONARQUBE_POSTGRES_USER=${SONARQUBE_POSTGRES_USER}
         - SONARQUBE_POSTGRES_PASSWORD=${SONARQUBE_POSTGRES_PASSWORD}
+        - POSTGRES_CONFLUENCE_INIT=${CONFLUENCE_POSTGRES_INIT}
+        - POSTGRES_CONFLUENCE_DB=${CONFLUENCE_POSTGRES_DB}
+        - POSTGRES_CONFLUENCE_USER=${CONFLUENCE_POSTGRES_USER}
+        - POSTGRES_CONFLUENCE_PASSWORD=${CONFLUENCE_POSTGRES_PASSWORD}
       networks:
         - backend
 
@@ -759,8 +770,10 @@ services:
         - elasticsearch:/usr/share/elasticsearch/data
       environment:
         - cluster.name=laradock-cluster
+        - node.name=laradock-node
         - bootstrap.memory_lock=true
         - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        - cluster.initial_master_nodes=laradock-node
       ulimits:
         memlock:
           soft: -1
@@ -941,6 +954,38 @@ services:
         - "${GRAFANA_PORT}:3000"
       networks:
         - backend
+{% endif %}
+{% if ENABLE_GRAYLOG %}
+
+### Graylog #######################################
+    graylog:
+        build: ./graylog
+        environment:
+          - GRAYLOG_PASSWORD_SECRET=${GRAYLOG_PASSWORD}
+          - GRAYLOG_ROOT_PASSWORD_SHA2=${GRAYLOG_SHA256_PASSWORD}
+          - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:${GRAYLOG_PORT}/
+        links:
+          - mongo
+          - elasticsearch
+        depends_on:
+          - mongo
+          - elasticsearch
+        ports:
+          # Graylog web interface and REST API
+          - ${GRAYLOG_PORT}:9000
+          # Syslog TCP
+          - ${GRAYLOG_SYSLOG_TCP_PORT}:514
+          # Syslog UDP
+          - ${GRAYLOG_SYSLOG_UDP_PORT}:514/udp
+          # GELF TCP
+          - ${GRAYLOG_GELF_TCP_PORT}:12201
+          # GELF UDP
+          - ${GRAYLOG_GELF_UDP_PORT}:12201/udp
+        user: root
+        volumes:
+          - ./graylog/config:/usr/share/graylog/data/config
+        networks:
+          - backend
 {% endif %}
 {% if ENABLE_LARAVEL_ECHO %}
 
@@ -1656,4 +1701,21 @@ services:
       networks:
         - backend
         - frontend
+{% endif %}
+{% if ENABLE_CONFLUENCE %}
+
+### CONFLUENCE ################################################
+    confluence:
+      container_name: Confluence
+      image: atlassian/confluence-server:${CONFLUENCE_VERSION}
+      restart: always
+      ports:
+        - "${CONFLUENCE_HOST_HTTP_PORT}:8090"
+      networks:
+        - frontend
+        - backend
+      depends_on:
+        - postgres
+      volumes:
+        - ${DATA_PATH_HOST}/Confluence:/var/atlassian/application-data
 {% endif %}
