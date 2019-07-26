@@ -487,5 +487,5 @@ Steps of quick start of new project:
   * You need to change *.yml files with vars in folder **ansible/vars**.
   * You need to check and change template files in folder **ansible/templates**.
   * You need to change workspace host name in **ansible/*-hosts.yml** and playbooks (For example: from **laradockoctober_workspace_1** to **laradockmyproject_workspace_1**).
-  * You need to set app_user password in provision playbooks with using [dock](https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module).
+  * You need to set app_user password in provision playbooks with using [dock](https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module).
   * Run ```make project-install``` command.
