@@ -588,11 +588,14 @@ services:
 
 ### Redis ################################################
     redis:
-      build: ./services/redis
+      build:
+        context: ./services/redis
+        args:
+          - REDIS_PASSWORD=${REDIS_PASSWORD}
       volumes:
         - ${DATA_PATH_HOST}/redis:/data
       ports:
-        - "${REDIS_PORT}:6379"
+        - "${REDIS_PORT}:{{ REDIS_PORT }}"
       networks:
         - backend
 {% endif %}

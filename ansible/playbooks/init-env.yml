@@ -80,6 +80,11 @@
         src: ./../templates/app/{{ env }}.env
         dest: ./../../app/.env
         force: true
+    - name: 'Create laravel-echo-server.json file in services/laravel-echo-server folder'
+      template:
+        src: ./../templates/laravel-echo/{{ env }}-laravel-echo-server.json
+        dest: ./../../services/laravel-echo-server/laravel-echo-server.json
+        force: true
     - name: 'Copy robots.txt file in app folder'
       template:
         src: ./../templates/app/{{ env }}-robots.txt
