@@ -4,19 +4,6 @@ version = 'master'
 src = 'bitbucket'
 
 # Local commands
-local-first-start:
-	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
-	docker-compose up -d
-#	ansible-playbook --vault-id password ansible/playbooks/project/generate-public-mirror.yml -i ansible/$(inventory)-hosts.yml
-	ansible-playbook --vault-id password ansible/playbooks/mysql/build.yml -i ansible/$(inventory)-hosts.yml
-	ansible-playbook --vault-id password ansible/playbooks/mysql/start.yml -i ansible/$(inventory)-hosts.yml
-	make local-composer-install
-	make import-full src=$(src)
-	make local-october-up
-	make local-npm-prod
-#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/build.yml -i ansible/$(inventory)-hosts.yml
-#	ansible-playbook --vault-id password ansible/playbooks/sphinxsearch/start.yml -i ansible/$(inventory)-hosts.yml
-	make docker-status
 local-up:
 	ansible-playbook --vault-id password ansible/playbooks/init-env.yml -i ansible/$(inventory)-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 	docker-compose up -d
@@ -90,11 +77,6 @@ export-full :
 	ansible-playbook --vault-id password ansible/playbooks/images/export-images.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 
 # Staging commands
-staging-first-start:
-	make staging-create prefix=$(prefix)
-	sleep 30
-	make staging-provisioning prefix=$(prefix) version=$(version)
-	ansible-playbook --vault-id password ansible/playbooks/staging/first-start.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
 staging-create :
 	ansible-playbook --vault-id password ansible/playbooks/terraform/apply.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 staging-provisioning :
