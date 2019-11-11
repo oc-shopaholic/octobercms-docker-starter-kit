@@ -102,3 +102,8 @@
         recurse: yes
       become: true
       become_user: root
+    - name: 'Add cron job (reboot)'
+      cron:
+        name: 'Start project after reboot'
+        special_time: reboot
+        job: "( sleep 120; cd /home/app_user/project ; /usr/bin/docker-compose up -d)"
