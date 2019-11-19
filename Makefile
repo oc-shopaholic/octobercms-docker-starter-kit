@@ -66,16 +66,6 @@ import-images:
 export-images:
 	ansible-playbook --vault-id password ansible/playbooks/images/export-images.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 
-# Import/export full
-import-full :
-	ansible-playbook --vault-id password ansible/playbooks/mysql/import-db.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/content/import-content.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/images/import-images.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-export-full :
-	ansible-playbook --vault-id password ansible/playbooks/mysql/export-db.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/content/export-content.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/images/export-images.yml -i ansible/$(inventory)-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-
 # Staging commands
 staging-create :
 	ansible-playbook --vault-id password ansible/playbooks/terraform/apply.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
@@ -105,14 +95,6 @@ staging-import-images :
 	ansible-playbook --vault-id password ansible/playbooks/staging/import-images.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
 staging-export-images :
 	ansible-playbook --vault-id password ansible/playbooks/staging/export-images.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
-staging-import-full :
-	ansible-playbook --vault-id password ansible/playbooks/staging/import-mysql-db.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/staging/import-content.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/staging/import-images.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
-staging-export-full :
-	ansible-playbook --vault-id password ansible/playbooks/staging/export-mysql-db.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/staging/export-content.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/staging/export-images.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix) DUMP_SRC=$(src)"
 #staging-sphinx-rotate-all :
 #	ansible-playbook --vault-id password ansible/playbooks/staging/sphinx-rotate-all.yml -i ansible/staging-hosts.yml --extra-vars "STAGING_PREFIX=$(prefix)"
 
@@ -133,25 +115,11 @@ production-pull :
 production-simple-pull :
 	docker-compose up -d workspace
 	ansible-playbook --vault-id password ansible/playbooks/production/simple-pull.yml -i ansible/production-hosts.yml --extra-vars "GIT_VERSION=$(version)"
-production-import-mysql-db :
-	ansible-playbook --vault-id password ansible/playbooks/production/import-mysql-db.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 production-export-mysql-db :
 	ansible-playbook --vault-id password ansible/playbooks/production/export-mysql-db.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-production-import-content :
-	ansible-playbook --vault-id password ansible/playbooks/production/import-content.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 production-export-content :
 	ansible-playbook --vault-id password ansible/playbooks/production/export-content.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-production-import-images :
-	ansible-playbook --vault-id password ansible/playbooks/production/import-images.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 production-export-images :
-	ansible-playbook --vault-id password ansible/playbooks/production/export-images.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-production-import-full :
-	ansible-playbook --vault-id password ansible/playbooks/production/import-mysql-db.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/production/import-content.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/production/import-images.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-production-export-full :
-	ansible-playbook --vault-id password ansible/playbooks/production/export-mysql-db.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
-	ansible-playbook --vault-id password ansible/playbooks/production/export-content.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 	ansible-playbook --vault-id password ansible/playbooks/production/export-images.yml -i ansible/production-hosts.yml --extra-vars "DUMP_SRC=$(src)"
 #production-sphinx-rotate-all :
 #	ansible-playbook --vault-id password ansible/playbooks/production/sphinx-rotate-all.yml -i ansible/production-hosts.yml
