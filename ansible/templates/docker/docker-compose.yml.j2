@@ -95,7 +95,8 @@ volumes:
   dind:
     driver: ${VOLUMES_DRIVER}
 {% endif %}
-
+  docker-in-docker:
+    driver: ${VOLUMES_DRIVER}
 services:
 
 ### Workspace Utilities ##################################
@@ -108,16 +109,19 @@ services:
           - LARADOCK_PHP_VERSION=${PHP_VERSION}
           - LARADOCK_PHALCON_VERSION=${PHALCON_VERSION}
           - INSTALL_SUBVERSION=${WORKSPACE_INSTALL_SUBVERSION}
+          - INSTALL_BZ2=${WORKSPACE_INSTALL_BZ2}
+          - INSTALL_GMP=${WORKSPACE_INSTALL_GMP}
           - INSTALL_XDEBUG=${WORKSPACE_INSTALL_XDEBUG}
+          - INSTALL_PCOV=${WORKSPACE_INSTALL_PCOV}
           - INSTALL_PHPDBG=${WORKSPACE_INSTALL_PHPDBG}
 {% if ENABLE_BLACKFIRE %}
           - INSTALL_BLACKFIRE=${INSTALL_BLACKFIRE}
 {% endif %}
           - INSTALL_SSH2=${WORKSPACE_INSTALL_SSH2}
-          - INSTALL_GMP=${WORKSPACE_INSTALL_GMP}
           - INSTALL_SOAP=${WORKSPACE_INSTALL_SOAP}
           - INSTALL_XSL=${WORKSPACE_INSTALL_XSL}
           - INSTALL_LDAP=${WORKSPACE_INSTALL_LDAP}
+          - INSTALL_SMB=${WORKSPACE_INSTALL_SMB}
           - INSTALL_IMAP=${WORKSPACE_INSTALL_IMAP}
           - INSTALL_MONGO=${WORKSPACE_INSTALL_MONGO}
           - INSTALL_AMQP=${WORKSPACE_INSTALL_AMQP}
@@ -137,6 +141,7 @@ services:
           - INSTALL_WP_CLI=${WORKSPACE_INSTALL_WP_CLI}
           - INSTALL_DRUPAL_CONSOLE=${WORKSPACE_INSTALL_DRUPAL_CONSOLE}
           - INSTALL_AEROSPIKE=${WORKSPACE_INSTALL_AEROSPIKE}
+          - INSTALL_OCI8=${WORKSPACE_INSTALL_OCI8}
           - INSTALL_V8JS=${WORKSPACE_INSTALL_V8JS}
           - COMPOSER_GLOBAL_INSTALL=${WORKSPACE_COMPOSER_GLOBAL_INSTALL}
           - COMPOSER_AUTH=${WORKSPACE_COMPOSER_AUTH}
@@ -163,9 +168,12 @@ services:
           - INSTALL_MYSQL_CLIENT=${WORKSPACE_INSTALL_MYSQL_CLIENT}
           - INSTALL_PING=${WORKSPACE_INSTALL_PING}
           - INSTALL_SSHPASS=${WORKSPACE_INSTALL_SSHPASS}
+          - INSTALL_INOTIFY=${WORKSPACE_INSTALL_INOTIFY}
+          - INSTALL_FSWATCH=${WORKSPACE_INSTALL_FSWATCH}
           - INSTALL_AST=${WORKSPACE_INSTALL_AST}
           - INSTALL_YAML=${WORKSPACE_INSTALL_YAML}
           - INSTALL_MAILPARSE=${WORKSPACE_INSTALL_MAILPARSE}
+          - INSTALL_GIT_PROMPT=${WORKSPACE_INSTALL_GIT_PROMPT}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
           - CHROME_DRIVER_VERSION=${WORKSPACE_CHROME_DRIVER_VERSION}
@@ -181,21 +189,29 @@ services:
           - INSTALL_POWERLINE=${WORKSPACE_INSTALL_POWERLINE}
           - INSTALL_SUPERVISOR=${WORKSPACE_INSTALL_SUPERVISOR}
           - INSTALL_FFMPEG=${WORKSPACE_INSTALL_FFMPEG}
+          - INSTALL_WKHTMLTOPDF=${WORKSPACE_INSTALL_WKHTMLTOPDF}
           - INSTALL_GNU_PARALLEL=${WORKSPACE_INSTALL_GNU_PARALLEL}
           - http_proxy
           - https_proxy
           - no_proxy
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+        - docker-in-docker:/certs/client
+        - ./php-worker/supervisord.d:/etc/supervisord.d
         - ./temp:/home/laradock/temp
       extra_hosts:
         - "dockerhost:${DOCKER_HOST_IP}"
       ports:
         - "${WORKSPACE_SSH_PORT}:22"
+        - "${WORKSPACE_VUE_CLI_SERVE_HOST_PORT}:8080"
+        - "${WORKSPACE_VUE_CLI_UI_HOST_PORT}:8000"
       tty: true
       environment:
         - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
-        - DOCKER_HOST=tcp://docker-in-docker:2375
+        - DOCKER_HOST=tcp://docker-in-docker:2376
+        - DOCKER_TLS_VERIFY=1
+        - DOCKER_TLS_CERTDIR=/certs
+        - DOCKER_CERT_PATH=/certs/client
       networks:
         - frontend
         - backend
@@ -210,7 +226,10 @@ services:
           - CHANGE_SOURCE=${CHANGE_SOURCE}
           - LARADOCK_PHP_VERSION=${PHP_VERSION}
           - LARADOCK_PHALCON_VERSION=${PHALCON_VERSION}
+          - INSTALL_BZ2=${PHP_FPM_INSTALL_BZ2}
+          - INSTALL_GMP=${PHP_FPM_INSTALL_GMP}
           - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
+          - INSTALL_PCOV=${PHP_FPM_INSTALL_PCOV}
           - INSTALL_PHPDBG=${PHP_FPM_INSTALL_PHPDBG}
 {% if ENABLE_BLACKFIRE %}
           - INSTALL_BLACKFIRE=${INSTALL_BLACKFIRE}
@@ -218,6 +237,7 @@ services:
           - INSTALL_SSH2=${PHP_FPM_INSTALL_SSH2}
           - INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}
           - INSTALL_XSL=${PHP_FPM_INSTALL_XSL}
+          - INSTALL_SMB=${PHP_FPM_INSTALL_SMB}
           - INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP}
           - INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}
           - INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP}
@@ -231,6 +251,7 @@ services:
           - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
           - INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF}
           - INSTALL_AEROSPIKE=${PHP_FPM_INSTALL_AEROSPIKE}
+          - INSTALL_OCI8=${PHP_FPM_INSTALL_OCI8}
           - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
           - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
           - INSTALL_PG_CLIENT=${PHP_FPM_INSTALL_PG_CLIENT}
@@ -259,22 +280,28 @@ services:
           - INSTALL_PCNTL=${PHP_FPM_INSTALL_PCNTL}
           - ADDITIONAL_LOCALES=${PHP_FPM_ADDITIONAL_LOCALES}
           - INSTALL_FFMPEG=${PHP_FPM_FFMPEG}
+          - INSTALL_WKHTMLTOPDF=${PHP_FPM_INSTALL_WKHTMLTOPDF}
           - INSTALL_XHPROF=${PHP_FPM_INSTALL_XHPROF}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
+          - LOCALE=${PHP_FPM_DEFAULT_LOCALE}
           - http_proxy
           - https_proxy
           - no_proxy
       volumes:
         - ./services/php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+        - docker-in-docker:/certs/client
       expose:
         - "9000"
       extra_hosts:
         - "dockerhost:${DOCKER_HOST_IP}"
       environment:
         - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
-        - DOCKER_HOST=tcp://docker-in-docker:2375
+        - DOCKER_HOST=tcp://docker-in-docker:2376
+        - DOCKER_TLS_VERIFY=1
+        - DOCKER_TLS_CERTDIR=/certs
+        - DOCKER_CERT_PATH=/certs/client
         - FAKETIME=${PHP_FPM_FAKETIME}
       depends_on:
         - workspace
@@ -290,8 +317,11 @@ services:
         context: ./services/php-worker
         args:
           - CHANGE_SOURCE=${CHANGE_SOURCE}
-          - PHP_VERSION=${PHP_VERSION}
+          - LARADOCK_PHP_VERSION=${PHP_VERSION}
           - PHALCON_VERSION=${PHALCON_VERSION}
+          - INSTALL_BZ2=${PHP_WORKER_INSTALL_BZ2}
+          - INSTALL_GD=${PHP_WORKER_INSTALL_GD}
+          - INSTALL_GMP=${PHP_WORKER_INSTALL_GMP}
           - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
           - INSTALL_BCMATH=${PHP_WORKER_INSTALL_BCMATH}
           - INSTALL_PHALCON=${PHP_WORKER_INSTALL_PHALCON}
@@ -305,7 +335,6 @@ services:
           - INSTALL_SWOOLE=${PHP_WORKER_INSTALL_SWOOLE}
           - INSTALL_TAINT=${PHP_WORKER_INSTALL_TAINT}
           - INSTALL_FFMPEG=${PHP_WORKER_INSTALL_FFMPEG}
-          - INSTALL_GMP=${PHP_WORKER_INSTALL_GMP}
           - INSTALL_REDIS=${PHP_WORKER_INSTALL_REDIS}
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
@@ -327,14 +356,22 @@ services:
         context: ./services/laravel-horizon
         args:
           - CHANGE_SOURCE=${CHANGE_SOURCE}
-          - PHP_VERSION=${PHP_VERSION}
+          - LARADOCK_PHP_VERSION=${PHP_VERSION}
+          - INSTALL_BZ2=${LARAVEL_HORIZON_INSTALL_BZ2}
+          - INSTALL_GD=${LARAVEL_HORIZON_INSTALL_GD}
+          - INSTALL_GMP=${LARAVEL_HORIZON_INSTALL_GMP}
           - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
+          - INSTALL_ZIP_ARCHIVE=${LARAVEL_HORIZON_INSTALL_ZIP_ARCHIVE}
           - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
           - INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED}
           - INSTALL_SOCKETS=${LARAVEL_HORIZON_INSTALL_SOCKETS}
+          - INSTALL_YAML=${LARAVEL_HORIZON_INSTALL_YAML}
           - INSTALL_CASSANDRA=${PHP_FPM_INSTALL_CASSANDRA}
           - INSTALL_PHPREDIS=${LARAVEL_HORIZON_INSTALL_PHPREDIS}
           - INSTALL_MONGO=${LARAVEL_HORIZON_INSTALL_MONGO}
+          - INSTALL_FFMPEG=${LARAVEL_HORIZON_INSTALL_FFMPEG}
+          - PUID=${WORKSPACE_PUID}
+          - PGID=${WORKSPACE_PGID}
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
         - ./services/laravel-horizon/supervisord.d:/etc/supervisord.d
@@ -368,6 +405,7 @@ services:
       ports:
         - "${NGINX_HOST_HTTP_PORT}:80"
         - "${NGINX_HOST_HTTPS_PORT}:443"
+        - "${VARNISH_BACKEND_PORT}:81"
       depends_on:
         - php-fpm
       networks:
@@ -492,6 +530,7 @@ services:
       build:
         context: ./services/mssql
       environment:
+        - MSSQL_PID=Express
         - MSSQL_DATABASE=${MSSQL_DATABASE}
         - SA_PASSWORD=${MSSQL_PASSWORD}
         - ACCEPT_EULA=Y
@@ -530,7 +569,10 @@ services:
 
 ### PostgreSQL ###########################################
     postgres:
-      build: ./services/postgres
+      build:
+        context: ./services/postgres
+        args:
+          - POSTGRES_VERSION=${POSTGRES_VERSION}
       volumes:
         - ${DATA_PATH_HOST}/postgres:/var/lib/postgresql/data
         - ${POSTGRES_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
@@ -875,7 +917,10 @@ services:
 
 ### ElasticSearch ########################################
     elasticsearch:
-      build: ./services/elasticsearch
+      build:
+        context: ./services/elasticsearch
+        args:
+          - ELK_VERSION=${ELK_VERSION}
       volumes:
         - elasticsearch:/usr/share/elasticsearch/data
       environment:
@@ -901,7 +946,10 @@ services:
 
 ### Logstash ##############################################
     logstash:
-      build: ./logstash
+      build:
+        context: ./services/logstash
+        args:
+          - ELK_VERSION=${ELK_VERSION}
       volumes:
         - './logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml'
         - './logstash/pipeline:/usr/share/logstash/pipeline'
@@ -921,7 +969,10 @@ services:
 
 ### Kibana ##############################################
     kibana:
-      build: ./services/kibana
+      build:
+        context: ./services/kibana
+        args:
+          - ELK_VERSION=${ELK_VERSION}
       ports:
         - "${KIBANA_HTTP_PORT}:5601"
       depends_on:
@@ -985,6 +1036,7 @@ services:
 
 ### Varnish ##########################################
     proxy:
+      container_name: proxy
       build: ./services/varnish
       expose:
         - ${VARNISH_PORT}
@@ -996,12 +1048,15 @@ services:
         - BACKEND_HOST=${VARNISH_PROXY1_BACKEND_HOST}
         - BACKEND_PORT=${VARNISH_BACKEND_PORT}
         - VARNISH_SERVER=${VARNISH_PROXY1_SERVER}
+      ports:
+        - "${VARNISH_PORT}:${VARNISH_PORT}"
       links:
         - workspace
       networks:
         - frontend
 
     proxy2:
+      container_name: proxy2
       build: ./services/varnish
       expose:
         - ${VARNISH_PORT}
@@ -1013,6 +1068,8 @@ services:
         - BACKEND_HOST=${VARNISH_PROXY2_BACKEND_HOST}
         - BACKEND_PORT=${VARNISH_BACKEND_PORT}
         - VARNISH_SERVER=${VARNISH_PROXY2_SERVER}
+      ports:
+        - "${VARNISH_PORT}:${VARNISH_PORT}"
       links:
         - workspace
       networks:
@@ -1383,11 +1440,13 @@ services:
 
 ### Docker-in-Docker ################################################
     docker-in-docker:
-      image: docker:dind
+      image: docker:19.03-dind
+      environment:
+        DOCKER_TLS_SAN: DNS:docker-in-docker
       privileged: true
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-        - ${DATA_PATH_HOST}/dind:/var/lib/docker
+        - docker-in-docker:/certs/client
       expose:
         - 2375
       networks:
@@ -1777,7 +1836,7 @@ services:
       volumes:
         - ${MANTICORE_CONFIG_PATH}:/etc/sphinxsearch
         - ${DATA_PATH_HOST}/manticore/data:/var/lib/manticore/data
-        - ${DATA_PATH_HOST}/manticore/log:/var/lib/manticore/log
+        - ${DATA_PATH_HOST}/manticore/log:/var/log/manticore
       ports:
         - "${MANTICORE_API_PORT}:9312"
         - "${MANTICORE_SPHINXQL_PORT}:9306"
