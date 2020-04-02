@@ -132,7 +132,6 @@ RUN apt-get update && apt-get install -y libwebp-dev
 
 # Install the PHP gd library
 RUN docker-php-ext-configure gd \
-        --enable-gd-native-ttf \
         --with-jpeg-dir=/usr/lib \
         --with-webp-dir=/usr/include \
         --with-freetype-dir=/usr/include/freetype2 && \
@@ -825,12 +824,7 @@ USER root
 ARG INSTALL_MYSQL_CLIENT=false
 
 RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
-    apt-get update -yqq && \
-    if [ ${LARADOCK_PHP_VERSION} = "7.3" ]; then \
       apt-get -y install default-mysql-client \
-    ;else \
-      apt-get -y install mysql-client \
-    ;fi \
 ;fi
 
 ###########################################################################
@@ -842,7 +836,6 @@ USER root
 ARG INSTALL_PING=false
 
 RUN if [ ${INSTALL_PING} = true ]; then \
-    apt-get update -yqq && \
     apt-get -y install inetutils-ping \
 ;fi
 
@@ -855,7 +848,6 @@ USER root
 ARG INSTALL_SSHPASS=false
 
 RUN if [ ${INSTALL_SSHPASS} = true ]; then \
-    apt-get update -yqq && \
     apt-get -y install sshpass \
 ;fi
 
