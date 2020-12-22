@@ -21,5 +21,9 @@
         ports:
         - "9312:9312"
         - "9306:9306"
+        log_driver: "json-file"
+        log_options:
+          "max-size": "100m"
+          "max-file": "3"
         networks:
           - name: "{{DOCKER_PREFIX}}_backend"
