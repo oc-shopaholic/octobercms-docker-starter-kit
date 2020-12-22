@@ -15,6 +15,10 @@
         image: "mysql:{{MYSQL_VERSION}}"
         state: started
         restart_policy: "{{ RESTART_POLICY }}"
+        log_driver: "json-file"
+        log_options:
+          "max-size": "100m"
+          "max-file": "3"
         env:
           MYSQL_DATABASE: "{{DATABASE_NAME}}"
           MYSQL_USER: "{{DATABASE_USER}}"
