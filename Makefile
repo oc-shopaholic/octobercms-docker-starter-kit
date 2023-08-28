@@ -1,7 +1,5 @@
-prefix = 'staging'
 inventory = 'local'
 version = 'master'
-src = 'bitbucket'
 
 # Local commands
 local-up:
