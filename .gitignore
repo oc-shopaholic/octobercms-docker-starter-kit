@@ -3,11 +3,10 @@
 .env.*.php
 .env.php
 /docker-compose.yml
-.terraform/
 
 #app
-#/app/vendor
-/app/package-lock.json
+.vault-password-*
+/app/vendor
 /app/themes/*/assets/css
 /app/themes/*/assets/js
 /app/themes/*/assets/mix-manifest.json
@@ -167,7 +166,4 @@ crashlytics.properties
 crashlytics-build.properties
 
 # Docs
-doc
 /.vscode/
-
-yml

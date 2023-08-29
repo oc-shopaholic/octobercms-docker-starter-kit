@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+role=${CONTAINER_ROLE:-app}
+
+if [ ! -z "$WWWUSER" ]; then
+    usermod -u $WWWUSER sail
+fi
+
+if [ ! -d /.composer ]; then
+    mkdir /.composer
+fi
+
+chmod -R ugo+rw /.composer
+
+if [ "$role" = "app" ]; then
+    if [ $# -gt 0 ]; then
+        exec gosu $WWWUSER "$@"
+    else
+        exec php-fpm
+    fi
+elif [ "$role" = "image" ]; then
+    cd /var/www/html/ && composer install && php artisan migrate --force
+
+    printf "\n\nStarting PHP daemon...\n\n"
+    php-fpm --daemonize
+
+    printf "Starting Nginx...\n\n"
+    set -e
+    if [[ "$1" == -* ]]; then
+        set -- nginx -g daemon off; "$@"
+    fi
+
+    exec "$@"
+elif [ "$role" = "queue" ]; then
+    cd /var/www/html/ && composer install
+    echo "Running the queue..."
+    gosu $WWWUSER php /var/www/html/artisan queue:work --verbose --tries=3 --timeout=600
+elif [ "$role" = "scheduler" ]; then
+    cd /var/www/html/ && composer install
+
+    while [ true ]
+    do
+        gosu $WWWUSER php /var/www/html/artisan schedule:run --verbose --no-interaction & sleep 60
+    done
+fi

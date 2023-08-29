@@ -2,7 +2,5 @@ DATABASE_NAME: app_db
 DATABASE_USER: app_user_db
 DATABASE_PORT: 3306
 
-# Database type: mysql|percona|mssql|mariadb|postgres|mongodb
+# Database type: mysql|postgres
 DATABASE_TYPE: mysql
-
-MYSQL_VERSION: latest

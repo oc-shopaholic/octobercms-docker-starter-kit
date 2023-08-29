@@ -1,0 +1,32 @@
+- name: 'Create .env file for docker compose'
+  hosts: localhost
+  tasks:
+    - name: 'Get user ID'
+      when: ansible_os_family != "Windows"
+      command: id -u
+      register: CURRENT_USER_ID
+    # Gather facts
+    - name: 'Include global vars'
+      include_vars:
+        dir: ./../../vars/global
+    - name: 'Include environment vars'
+      include_vars:
+        dir: ./../../vars/{{ env }}
+
+    # Generate docker-compose files
+    - name: 'Create docker-compose.yml file'
+      template:
+        src: ./../../templates/docker/docker-compose.yml.j2
+        dest: ./../../../docker-compose.yml
+        force: true
+    - name: 'Create .env file for docker-compose'
+      template:
+        src: ./../../templates/docker/.env.j2
+        dest: ./../../../.env
+        force: true
+    - name: 'Replace docker .env file for Windows'
+      when: ansible_os_family == "Windows"
+      lineinfile:
+        path: ./../../../.env
+        regexp: "^COMPOSE_PATH_SEPARATOR=:"
+        line: "COMPOSE_PATH_SEPARATOR=;"
